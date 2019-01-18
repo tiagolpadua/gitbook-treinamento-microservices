@@ -1,12 +1,21 @@
 # Initial page
 
 10 dias
-2 capítulos por dia
-20 capítulos
 
+Bibliografia
+Spring Microservices in Action
+redbook ibm microservices from theory to pratice
 
-Introdução a arquitetura de microserviços
-
+Bem-vindo à nuvem, primavera
+Construindo microsserviços com o Spring Boot
+Controlando sua configuração com o servidor de configuração do Spring Cloud
+Na descoberta de serviço
+Quando coisas ruins acontecem: padrões de resiliência do cliente com Spring Cloud e Netflix Hystrix
+Roteamento de serviços com Spring Cloud e Zuul
+Protegendo seus microsserviços
+Arquitetura orientada a eventos com o Spring Cloud Stream
+Rastreamento distribuído com Spring Cloud Sleuth e Zipkin
+Implantando seus microsserviços
 
 
 Spring Cloud
