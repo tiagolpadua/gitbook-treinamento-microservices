@@ -12,6 +12,12 @@ Portanto, um microsserviço é uma função essencial de uma aplicação e é ex
 
 Como isso é possível? Com a adaptação dos fundamentos da arquitetura orientada a serviço (SOA) para a implantação de microsserviços.
 
+Uma abordagem monolítica:
+![](assets/monolithic-approach.jpg)
+
+Uma abordagem de microsserviços:
+![](assets/microservices-approach.jpg)
+
 ## Isso soa familiar?
 Se você conhece o método de decompor aplicações em funções essenciais para evitar os problemas provocados pelas arquiteturas monolíticas é porque o estilo de arquitetura de microsserviços é semelhante ao da arquitetura orientada para serviços (SOA), um já consagrado no desenvolvimento de programas de software.
 
