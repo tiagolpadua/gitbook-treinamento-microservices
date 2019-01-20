@@ -8,6 +8,7 @@
 * [Recuperando um Recurso](05-recuperando-um-recurso.md)
 * [Incluindo um Recurso](06-incluindo-um-recurso.md)
 * [Alterando Recursos](07-alterando-recursos.md)
+* [Persistindo em um Banco de Dados](08-persistindo.md)
 
 <!--
 Persistindo os dados em um banco
