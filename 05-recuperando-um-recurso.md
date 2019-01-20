@@ -46,16 +46,16 @@ public class LivrosController {
 	}
 	
   // Novidade aqui
-	@RequestMapping("/livros/{livroId}")
-	public Livro getLivroPorId(@PathVariable Long livroId) {
-		System.out.println("livroId: " + livroId);
+	@RequestMapping("/livros/{id}")
+	public Livro getLivroPorId(@PathVariable Long id) {
+		System.out.println("id: " + id);
 		Livro l = new Livro(1l, "Don Quixote", "Miguel de Cervantes", 144.0);
 		return l;
 	}
 }
 ```
 
-Vamos fazer o ```System.out.println("livroId: " + livroId)``` somente para conferir se realmente o parâmetro está sendo capturado.
+Vamos fazer o ```System.out.println("id: " + id)``` somente para conferir se realmente o parâmetro está sendo capturado.
 
 Com isso, acessando no navegador o endereço http://localhost:8080/livros/1 obtemos o seguinte JSON:
 
@@ -158,10 +158,10 @@ public class LivrosController {
 		return listaLivros;
 	}
 	
-	@RequestMapping("/livros/{livroId}")
-	public Livro getLivroPorId(@PathVariable Long livroId) {
+	@RequestMapping("/livros/{id}")
+	public Livro getLivroPorId(@PathVariable Long id) {
     // Novidade aqui
-		return listaLivros.stream().filter(l -> l.getId().equals(livroId)).findFirst().orElse(null);
+		return listaLivros.stream().filter(l -> l.getId().equals(id)).findFirst().orElse(null);
 	}
 }
 ```
@@ -272,11 +272,11 @@ public class LivrosController {
 
 	// Código atual omitido
 
-	@RequestMapping("/livros/{livroId}")
-	public Livro getLivroPorId(@PathVariable Long livroId) {
-		return listaLivros.stream().filter(l -> l.getId().equals(livroId)).findFirst()
+	@RequestMapping("/livros/{id}")
+	public Livro getLivroPorId(@PathVariable Long id) {
+		return listaLivros.stream().filter(l -> l.getId().equals(id)).findFirst()
       // Novidade aqui
-      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Livro não encontrado"));
+      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Livro não encontrado: " + id));
 	}
 }
 ```

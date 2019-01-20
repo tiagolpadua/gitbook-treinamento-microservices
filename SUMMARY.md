@@ -7,6 +7,7 @@
 * [Criando um end-point REST](04-end-point-rest.md)
 * [Recuperando um Recurso](05-recuperando-um-recurso.md)
 * [Incluindo um Recurso](06-incluindo-um-recurso.md)
+* [Alterando Recursos](07-alterando-recursos.md)
 
 <!--
 Persistindo os dados em um banco
