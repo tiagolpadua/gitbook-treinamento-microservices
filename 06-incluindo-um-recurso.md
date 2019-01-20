@@ -112,6 +112,44 @@ Qualquer uma destar ferramentas permite a execução de requisições HTTP arbit
 
 Utilizanto a anotação ```@RequestBody``` podemos anotar um parâmetro da função do controller que será preenchido com os dados da requisição.
 
+- ```src/main/java/com/acme/livroservice/LivrosController.java```
+
+```java
+package com.acme.livroservice;
+
+// Código atual omitido
+
+// Novidade aqui
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+
+@RestController
+// Novidade aqui
+@RequestMapping("/livros")
+public class LivrosController {
+
+	@Resource
+	private ArrayList<Livro> listaLivros;
+
+	// Novidade aqui
+	@GetMapping()
+	public List<Livro> getLivros() {
+		return listaLivros;
+	}
+
+	// Novidade aqui
+	@GetMapping("/{livroId}")
+	public Livro getLivroPorId(@PathVariable Long livroId) {
+		return listaLivros.stream().filter(l -> l.getId().equals(livroId)).findFirst()
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Livro não encontrado"));
+	}
+
+	@PostMapping
+	public void adicionarLivro(@RequestBody Livro livro) {
+		System.out.println("Função adicionarLivro acionada");
+	}
+}
+```
 
 <!--
 
