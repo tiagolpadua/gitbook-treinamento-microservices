@@ -13,8 +13,8 @@ E responder com a representação JSON como a seguir:
 ```json
 {
   "id": 1,
-  "autor": "Don Quixote",
-  "titulo": "Miguel de Cervantes",
+  "autor": "Miguel de Cervantes",
+  "titulo": "Don Quixote",
   "preco": 44
 }
 ```
@@ -49,7 +49,7 @@ public class LivrosController {
 	@RequestMapping("/livros/{id}")
 	public Livro getLivroPorId(@PathVariable Long id) {
 		System.out.println("id: " + id);
-		Livro l = new Livro(1l, "Don Quixote", "Miguel de Cervantes", 144.0);
+		Livro l = new Livro(1l, "Miguel de Cervantes", "Don Quixote", 144.0);
 		return l;
 	}
 }
@@ -62,8 +62,8 @@ Com isso, acessando no navegador o endereço http://localhost:8080/livros/1 obte
 ```json
 {
   "id": 1,
-  "autor": "Don Quixote",
-  "titulo": "Miguel de Cervantes",
+  "autor": "Miguel de Cervantes",
+  "titulo": "Don Quixote",
   "preco": 144
 }
 ```
@@ -113,10 +113,10 @@ public class LivroServiceApplication {
 		
 		ArrayList<Livro> livros = new ArrayList<Livro>();
 		
-		Livro l1 = new Livro(1l, "Don Quixote", "Miguel de Cervantes", 144.0);
-		Livro l2 = new Livro(2l, "O Senhor dos Anéis", "J. R. R. Tolkien", 123.0);
-		Livro l3 = new Livro(3l, "O Pequeno Príncipe", "Antoine de Saint-Exupéry", 152.0);
-		Livro l4 = new Livro(4l, "Um Conto de Duas Cidades", "Charles Dickens", 35.0);
+		Livro l1 = new Livro(1l, "Miguel de Cervantes", "Don Quixote", 144.0);
+		Livro l2 = new Livro(2l, "J. R. R. Tolkien", "O Senhor dos Anéis", 123.0);
+		Livro l3 = new Livro(3l, "Antoine de Saint-Exupéry", "O Pequeno Príncipe", 152.0);
+		Livro l4 = new Livro(4l, "Charles Dickens", "Um Conto de Duas Cidades", 35.0);
 		
 		livros.add(l1);
 		livros.add(l2);

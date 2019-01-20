@@ -8,22 +8,26 @@ Agora, iremos criar nosso primeiro web service RESTful com Spring.
 
 Criaremos um serviço que irá aceitar um request HTTP GET para:
 
-```http://localhost:8080/livros```
+```
+http://localhost:8080/livros
+```
+
 
 E responder com a representação JSON a seguir:
+
 
 ```json
 [
   {
     "id": 1,
-    "autor": "Don Quixote",
-    "titulo": "Miguel de Cervantes",
+    "autor": "Miguel de Cervantes",
+    "titulo": "Don Quixote",
     "preco": 44
   },
   {
     "id": 2,
-    "autor": "O Senhor dos Anéis",
-    "titulo": "J. R. R. Tolkien",
+    "autor": "J. R. R. Tolkien",
+    "titulo": "O Senhor dos Anéis",
     "preco": 23
   }
 ]
@@ -96,8 +100,8 @@ public class LivrosController {
 	public List<Livro> getLivros() {
 		ArrayList<Livro> livros = new ArrayList<Livro>();
 		
-		Livro l1 = new Livro(1l, "Don Quixote", "Miguel de Cervantes", 144.0);
-		Livro l2 = new Livro(2l, "O Senhor dos Anéis", "J. R. R. Tolkien", 123.0);
+		Livro l1 = new Livro(1l, "Miguel de Cervantes", "Don Quixote", 144.0);
+		Livro l2 = new Livro(2l, "J. R. R. Tolkien", "O Senhor dos Anéis", 123.0);
 		
 		livros.add(l1);
 		livros.add(l2);
@@ -128,14 +132,14 @@ Agora já podemos compilar e executar nossa aplicação, acessando o endereço h
 [
   {
     "id": 1,
-    "autor": "Don Quixote",
-    "titulo": "Miguel de Cervantes",
+    "autor": "Miguel de Cervantes",
+    "titulo": "Don Quixote",
     "preco": 44
   },
   {
     "id": 2,
-    "autor": "O Senhor dos Anéis",
-    "titulo": "J. R. R. Tolkien",
+    "autor": "J. R. R. Tolkien",
+    "titulo": "O Senhor dos Anéis",
     "preco": 23
   }
 ]
@@ -161,9 +165,9 @@ public class LivrosController {
 	public List<Livro> getLivros() {
 		ArrayList<Livro> livros = new ArrayList<Livro>();
 		
-		Livro l1 = new Livro(1l, "Don Quixote", "Miguel de Cervantes", 144.0);
-		Livro l2 = new Livro(2l, "O Senhor dos Anéis", "J. R. R. Tolkien", 123.0);
-		Livro l3 = new Livro(3l, "O Pequeno Príncipe", "Antoine de Saint-Exupéry", 152.0);
+		Livro l1 = new Livro(1l, "Miguel de Cervantes", "Don Quixote", 144.0);
+		Livro l2 = new Livro(2l, "J. R. R. Tolkien", "O Senhor dos Anéis", 123.0);
+		Livro l3 = new Livro(3l, "Antoine de Saint-Exupéry", "O Pequeno Príncipe", 152.0);
 		
 		livros.add(l1);
 		livros.add(l2);
@@ -180,20 +184,20 @@ Após compilar e executar nossa aplicação, acessando o endereço http://localh
 [
   {
     "id": 1,
-    "autor": "Don Quixote",
-    "titulo": "Miguel de Cervantes",
+    "autor": "Miguel de Cervantes",
+    "titulo": "Don Quixote",
     "preco": 44
   },
   {
     "id": 2,
-    "autor": "O Senhor dos Anéis",
-    "titulo": "J. R. R. Tolkien",
+    "autor": "J. R. R. Tolkien",
+    "titulo": "O Senhor dos Anéis",
     "preco": 23
   },
   {
     "id": 3,
-    "autor": "O Pequeno Príncipe",
-    "titulo": "Antoine de Saint-Exupéry",
+    "autor": "Antoine de Saint-Exupéry",
+    "titulo": "O Pequeno Príncipe",
     "preco": 52
   }
 ]

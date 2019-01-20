@@ -178,7 +178,7 @@ public class LivrosController {
 Ao efetuarmos a chamada POST utilizando o RESTClient devemos ver algo como a linha abaixo no console:
 
 ```bash
-Livro [id=5, autor=O Nome da Rosa, titulo=Umberto Eco, preco=27.0]
+Livro [id=5, autor=Umberto Eco, titulo=O Nome da Rosa, preco=27.0]
 ```
 
 Para que o livro possa de fato ser incluído na listagem, devemos encontrar um ID válido para ele e inserir o novo livro em ```listaLivros```, faremos isso agora:
