@@ -1,5 +1,7 @@
 # Construindo uma aplicação com Spring Boot
 
+<!-- https://spring.io/guides/gs/spring-boot/ -->
+
 Começaremos criando o esqueleto e nosso primeiro microsserviço, o microsserviço de livros:
 
 ![](assets/02-livro-service.png)
@@ -60,6 +62,16 @@ Via ```cmd``` iniciar o jar com o comando ```java -jar```:
 
 ![](assets/02-java-jar.jpg)
 
+## Construindo um JAR executável
+
+Você pode executar o aplicativo a partir da linha de comando com Gradle ou Maven. Ou você pode criar um único arquivo JAR executável que contém todas as dependências, classes e recursos necessários e executá-lo. Isso facilita o envio, a versão e a implantação do serviço como um aplicativo durante todo o ciclo de vida de desenvolvimento, em diferentes ambientes e assim por diante.
+
+Se você estiver usando o Maven, poderá executar o aplicativo usando ```./mvnw spring-boot:run```. Ou você pode construir o arquivo JAR com o pacote ```./mvnw clean```.
+
+O procedimento irá criar um JAR executável. Você também pode optar por criar um arquivo WAR clássico.
+
+A saída de log é exibida. O serviço deve ficar funcional dentro de alguns segundos.
+
 ## Entendendo o projeto base
 
 - ```pom.xml```
@@ -117,6 +129,11 @@ Via ```cmd``` iniciar o jar com o comando ```java -jar```:
 </project>
 ```
 
+O plugin Spring Boot Maven fornece muitos recursos convenientes:
+- Ele coleta todos os jars classpath e cria um jar único e executável, o que torna mais conveniente executar e transportar seu serviço;
+- Ele procura o método ```public static void main()``` para sinalizar como uma classe executável;
+- Ele fornece um resolvedor de dependência integrado que define o número da versão para corresponder às dependências do Spring Boot. Você pode substituir qualquer versão que desejar, mas será o padrão para o conjunto de versões escolhido do Boot;
+
 - ```src/main/java/com/acme/livroservice/LivroServiceApplication.java```
 
 ```java
@@ -137,6 +154,24 @@ public class LivroServiceApplication {
 
 }
 ```
+
+```@SpringBootApplication``` é uma anotação de conveniência que inclui todos os itens a seguir:
+- ```@Configuration``` marca a classe como uma fonte de definições de bean para o contexto do aplicativo;
+- ```@EnableAutoConfiguration``` informa ao Spring Boot para começar a adicionar beans com base nas configurações do caminho de classe, outros beans e várias configurações de propriedade;
+- Normalmente você adicionaria o ```@EnableWebMvc``` para um aplicativo Spring MVC, mas o Spring Boot o adiciona automaticamente quando vê o ***spring-webmvc*** no classpath. Isso sinaliza o aplicativo como um aplicativo da Web e ativa comportamentos-chave, como a configuração de um ```DispatcherServlet```.
+- O ```@ComponentScan``` diz ao Spring para procurar outros componentes, configurações e serviços no pacote livroservice, permitindo que ele encontre os controladores;
+
+O método ```main()``` usa o método ```SpringApplication.run()``` do Spring Boot para iniciar um aplicativo. Você percebeu que não havia uma única linha de XML? Nenhum arquivo ***web.xml*** também. Este aplicativo da web é 100% puro e você não precisa lidar com a configuração de qualquer canal ou infraestrutura.
+
+## Saiba o que você pode fazer com o Spring Boot
+
+O Spring Boot oferece uma maneira rápida de construir aplicativos. Ele analisa seu caminho de classe e os beans que você configurou, faz suposições razoáveis ​​sobre o que está faltando e adiciona-o. Com o Spring Boot, você pode se concentrar mais nos recursos de negócios e menos na infraestrutura.
+
+Por exemplo, no caso do Spring MVC existem vários beans específicos que quase sempre se precisa, e o Spring Boot os adiciona automaticamente. Um aplicativo Spring MVC também precisa de um contêiner de servlet, portanto, o Spring Boot configura automaticamente o Tomcat incorporado.
+
+Este é apenas um exemplo da configuração automática que o Spring Boot fornece. Ao mesmo tempo, o Spring Boot não atrapalha. Isso deixa você no controle com pouco esforço da sua parte.
+
+O Spring Boot não gera código nem faz edições nos seus arquivos. Em vez disso, quando você inicia o aplicativo, o Spring Boot liga dinamicamente os beans e as configurações e os aplica ao contexto do seu aplicativo.
 
 ## Inicializando o git na pasta do projeto
 
