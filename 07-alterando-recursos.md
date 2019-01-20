@@ -42,4 +42,30 @@ Teste a funcionalidade utilizando o RESTClient, pra isso, altere um recurso exis
 
 Falta pouco para completarmos as funcionalidades do CRUD (Create Retrieve Update Delete) de nosso microsserviço, mas ainda precisamos ser capazes de excluir livros, faremos isso agora, é uma funcionalidade simples dado o que já fizemos anteriormente.
 
+O método HTTP utilizado para se apagar um recurso é o DELETE, vejamos como ficará nosso código:
 
+```java
+// Código atual omitido
+
+// Novidade aqui
+import org.springframework.web.bind.annotation.DeleteMapping;
+
+@RestController
+@RequestMapping("/livros")
+public class LivrosController {
+	
+    // Código atual omitido
+
+    // Novidade aqui
+	@DeleteMapping("/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void excluirLivro(@PathVariable Long id) {
+		logger.info("excluirLivro: " + id);
+		
+		Livro livro = listaLivros.stream().filter(l -> l.getId().equals(id)).findFirst()
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Livro não encontrado: " + id));
+		
+		listaLivros.remove(livro);
+	}
+}
+```
