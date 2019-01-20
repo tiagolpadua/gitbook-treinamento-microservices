@@ -63,6 +63,14 @@ public class Livro {
 	}
 
 	/* Getters e Setters */
+
+  // Dica: O método abaixo pode ser gerado automaticamente clicando com o botão direito na classe
+  // e em Source -> Generate toString()
+  @Override
+	public String toString() {
+		return "Livro [id=" + id + ", autor=" + autor + ", titulo=" + titulo + ", preco=" + preco + "]";
+	}
+
 }
 ```
 

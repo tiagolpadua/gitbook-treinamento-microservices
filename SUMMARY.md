@@ -5,7 +5,8 @@
 * [Construindo uma aplicação com Spring Boot](02-hello-spring-boot.md)
 * [Entendendo REST](03-rest.md)
 * [Criando um end-point REST](04-end-point-rest.md)
-* [Adicionando funcionalidades ao microsserviço](05-adicionando-funcionalidades.md)
+* [Recuperando um Recurso](05-recuperando-um-recurso.md)
+* [Incluindo um Recurso](06-incluindo-um-recurso.md)
 
 <!--
 Persistindo os dados em um banco
@@ -15,4 +16,5 @@ Configuration
 Discovery
 Admin
 tratamento de erros - interceptors
+https://www.baeldung.com/spring-boot-custom-error-page
 -->
