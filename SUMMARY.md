@@ -9,6 +9,10 @@
 * [Incluindo um Recurso](06-incluindo-um-recurso.md)
 * [Alterando Recursos](07-alterando-recursos.md)
 * [Persistindo em um Banco de Dados](08-persistindo.md)
+* [Iniciando nossa nuvem](09-nuvem.md)
+* [Um Servidor de Configurações](10-config-server.md)
+
+* [Apêndice - RESTFul](a1-restful.md)
 
 <!--
 Persistindo os dados em um banco

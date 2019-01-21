@@ -280,3 +280,82 @@ Note que ```LivroRepository``` é injetado pelo construtor no controlador.
 
 Tudo deve funcionar normalmente, porém, irá perceber que não conseguimos mais buscar livros pelo autor e título, iremos providenciar este último ajuste agora.
 
+## Criteria Queries
+
+<!-- https://www.baeldung.com/spring-data-criteria-queries -->
+
+O Spring Data JPA fornece várias maneiras de lidar com entidades, incluindo métodos de consulta e consultas personalizadas de JPQL. No entanto, às vezes precisamos de uma abordagem mais programática: por exemplo, Criteria API ou QueryDSL.
+
+A Criteria API oferece uma maneira programática de criar consultas digitadas, o que nos ajuda a evitar erros de sintaxe. Ainda mais, quando o usamos com a API Metamodel, ele faz verificações em tempo de compilação se usamos os nomes e tipos de campos corretos.
+
+No entanto, tem suas desvantagens: temos que escrever uma lógica detalhada com código verboso.
+
+### Usando JPA Specifications
+
+O Spring Data introduziu a interface org.springframework.data.jpa.domain.Specification para encapsular um único predicado, podemos fornecer métodos para criar instâncias de especificação e então usá-los. Para isso, precisamos que o nosso repositório estenda org.springframework.data.jpa.repository.JpaSpecificationExecutor<T>. Essa interface declara métodos úteis para trabalhar com especificações.
+
+Infelizmente, não há nenhum método, ao qual podemos passar várias especificações como argumentos. Em vez disso, obtemos métodos de utilitário na interface org.springframework.data.jpa.domain.Specification. Por exemplo, combinando duas instâncias de especificação com lógica ```and``` e ```where```.
+
+Vamos então preparar nosso repositório para trabalhar com ```Specifications```:
+
+- ```/src/main/java/com/acme/livroservice/LivroRepository.java```
+
+```java
+package com.acme.livroservice;
+
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
+public interface LivroRepository extends JpaRepository<Livro, Long>, JpaSpecificationExecutor<Livro> {
+
+	static Specification<Livro> autorContem(String autor) {
+		return (livro, cq, cb) -> cb.like(cb.lower(livro.get("autor")), "%" + autor.toLowerCase() + "%");
+	}
+
+	static Specification<Livro> tituloContem(String titulo) {
+		return (livro, cq, cb) -> cb.like(cb.lower(livro.get("titulo")), "%" + titulo.toLowerCase() + "%");
+	}
+}
+```
+
+Em seguida, vamos alterar nosso controller para que utilize as ```Specifications```:
+
+- ```src/main/java/com/acme/livroservice/LivrosController.java```
+
+```java
+package com.acme.livroservice;
+
+// Código atual omitido
+
+// Novidade aqui
+import org.springframework.data.jpa.domain.Specification;
+
+@RestController
+@RequestMapping("/livros")
+public class LivrosController {
+
+	// Código atual omitido
+
+	@GetMapping
+	public List<Livro> getLivros(@RequestParam("autor") Optional<String> autor,
+			@RequestParam("titulo") Optional<String> titulo) {
+		logger.info(
+				"getLivros - autor: " + autor.orElse("Não informado") + " titulo: " + titulo.orElse("Não informado"));
+
+        // Novidades aqui
+		if (autor.isPresent()) {
+			return repository.findAll(LivroRepository.autorContem(autor.get()));
+		} else if (titulo.isPresent()) {
+			return repository.findAll(LivroRepository.tituloContem(titulo.get()));
+		} else if (autor.isPresent() && titulo.isPresent()) {
+			return repository.findAll(
+					Specification.where(LivroRepository.autorContem(autor.get())).and(LivroRepository.tituloContem(titulo.get())));
+		} else {
+			return repository.findAll();			
+		}
+	}
+
+	// Código atual omitido
+}
+```
