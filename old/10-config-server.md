@@ -8,3 +8,4 @@ Para resolver isso, vamos consolidar toda a nossa configuração em um único re
 
 Acesse https://start.spring.io/ , em Group altere para ```com.acme```, em Artifact digite ```config-server``` e nas dependências busque por "Config Server", gere o projeto, faça o download e importe no Spring Tools.
 
+http://localhost:8081/livros-service/default
