@@ -11,6 +11,8 @@
     * [Persistindo em um Banco de Dados](part01-microsservicos/08-persistindo.md)
 * [RabbitMQ](part02-rabbitmq/README.md)
     * [Principais Conceitos](part02-rabbitmq/01-conceitos.md)
+    * [Uso em alta disponibilidade (cluster)](part02-rabbitmq/02-ha.md)
+    * [Cadastro de Livro Assíncrono](part02-rabbitmq/02-async-book.md)
 * [Características da Arquitetura Orientada a Microsserviço](03-caracteristicas.md)
 * [Design Arquitetural de Microsserviços](04-design.md)
 * [Microsserviços em Container Docker](05-docker.md)

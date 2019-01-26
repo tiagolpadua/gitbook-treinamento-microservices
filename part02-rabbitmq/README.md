@@ -178,14 +178,14 @@ Se esta é sua primeira vez usando RabbitMQ e você não vê o "Enviado"
 
 -->
 
-## Uso em alta disponibilidade (cluster)
-
 ## Fontes
+
 - https://www.rabbitmq.com/tutorials/amqp-concepts.html
 - https://www.rabbitmq.com/tutorials/tutorial-one-java.html
-- https://www.embarcados.com.br/amqp-protocolo-de-comunicacao-para-iot/
+- https://spring.io/guides/gs/messaging-rabbitmq/
 
 <!--
+- https://www.embarcados.com.br/amqp-protocolo-de-comunicacao-para-iot/
 http://localhost:15672/#/ guest/guest
 https://www.cloudamqp.com/docs/usecases.html
 https://spring.io/understanding/AMQP
