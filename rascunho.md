@@ -1,3 +1,5 @@
+https://www.companyweb.com.br/treinamento/metodologias-praticas/design-arquitetural-de-microservico/
+
 https://dzone.com/articles/quick-guide-to-microservices-with-spring-boot-20-e
 
 https://pt.wikipedia.org/wiki/Lista_de_livros_mais_vendidos

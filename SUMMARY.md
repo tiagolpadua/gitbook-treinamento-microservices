@@ -1,7 +1,15 @@
 # Table of contents
 
-* [Microsserviços](README.md)
-* [RabbitMQ](02-rabbitmq.md)
+* [Microsserviços](part01-microsservicos/README.md)
+    * [Spring](part01-microsservicos/01-spring.md)
+    * [Construindo uma aplicação com Spring Boot](part01-microsservicos/02-hello-spring-boot.md)
+    * [Entendendo REST](part01-microsservicos/03-rest.md)
+    * [Criando um end-point REST](part01-microsservicos/04-end-point-rest.md)
+    * [Recuperando um Recurso](part01-microsservicos/05-recuperando-um-recurso.md)
+    * [Incluindo um Recurso](part01-microsservicos/06-incluindo-um-recurso.md)
+    * [Alterando Recursos](part01-microsservicos/07-alterando-recursos.md)
+    * [Persistindo em um Banco de Dados](part01-microsservicos/08-persistindo.md)
+* [RabbitMQ](part02-rabbitmq/README.md)
 * [Características da Arquitetura Orientada a Microsserviço](03-caracteristicas.md)
 * [Design Arquitetural de Microsserviços](04-design.md)
 * [Microsserviços em Container Docker](05-docker.md)

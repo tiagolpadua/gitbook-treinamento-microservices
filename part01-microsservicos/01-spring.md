@@ -17,7 +17,7 @@ Exemplos de como você, como desenvolvedor de aplicativos, pode usar a vantagem 
 - Torne um método Java local uma operação de gerenciamento sem ter que lidar com APIs JMX.
 - Torne um método Java local um manipulador de mensagens sem ter que lidar com as APIs do JMS.
 
-![](assets/spring-components.gif)
+![](../assets/spring-components.gif)
 
 ## Spring Boot
 
@@ -50,7 +50,7 @@ Finalmente, ele apresenta um suporte especial para aplicativos Spring (em um mó
 
 O Spring Tools oferece suporte para o desenvolvimento de aplicativos corporativos baseados em Spring e Spring Boot.
 
-![](assets/screenshot-eclipse.png)
+![](../assets/screenshot-eclipse.png)
 
 ## Fontes
 
