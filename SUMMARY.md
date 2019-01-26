@@ -10,6 +10,7 @@
     * [Alterando Recursos](part01-microsservicos/07-alterando-recursos.md)
     * [Persistindo em um Banco de Dados](part01-microsservicos/08-persistindo.md)
 * [RabbitMQ](part02-rabbitmq/README.md)
+    * [Principais Conceitos](part02-rabbitmq/01-conceitos.md)
 * [Características da Arquitetura Orientada a Microsserviço](03-caracteristicas.md)
 * [Design Arquitetural de Microsserviços](04-design.md)
 * [Microsserviços em Container Docker](05-docker.md)
