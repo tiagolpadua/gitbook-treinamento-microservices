@@ -13,12 +13,14 @@
     * [Principais Conceitos](part02-rabbitmq/01-conceitos.md)
     * [Uso em alta disponibilidade (cluster)](part02-rabbitmq/02-ha.md)
     * [Cadastro de Livro Assíncrono](part02-rabbitmq/02-async-book.md)
-* [Características da Arquitetura Orientada a Microsserviço](03-caracteristicas.md)
+* [Características da Arquitetura Orientada a Microsserviço](part03-caracteristicas/README.md)
+
+<!--
+
 * [Design Arquitetural de Microsserviços](04-design.md)
 * [Microsserviços em Container Docker](05-docker.md)
 * [Implantação e Monitoramento](06-implantacao.md)
 
-<!--
 * [Spring](01-spring.md)
 * [Construindo uma aplicação com Spring Boot](02-hello-spring-boot.md)
 * [Entendendo REST](03-rest.md)
