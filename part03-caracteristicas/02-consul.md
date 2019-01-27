@@ -72,7 +72,7 @@ Vamos incluir as depenências ```spring-cloud-starter-consul-discovery``` em nos
 ```xml
 <dependency>
     <groupId>org.springframework.cloud</groupId>
-    <artifactId>spring-cloud-starter-config</artifactId>
+    <artifactId>spring-cloud-starter-consul-discovery</artifactId>
 </dependency>
 ```
 
