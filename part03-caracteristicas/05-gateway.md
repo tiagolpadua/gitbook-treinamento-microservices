@@ -95,14 +95,21 @@ Uma variação desse padrão é o padrão Backend for Front-End. Ele define um g
 
 Neste exemplo, existem três tipos de clientes: aplicativo da web, aplicativo móvel e aplicativo externo de terceiros. Existem três gateways de API diferentes. Cada um deles fornece uma API para seu cliente.
 
----------------
+## Utilizando um Gateway API em nosso projeto
 
+O primeiro passo é importarmos o projeto avaliacoes-service e executá-lo, deste modo, ficaremos com os seguintes serviços executados localmente:
 
-8080 -> livro-service
-8081 -> avaliacao-service
-8888 -> config-server
-8500 -> Consul
-15672 -> RabbitMQ
+- http://localhost:8080 -> livro-service
+- http://localhost:8081 -> avaliacao-service
+- http://localhost:8888 -> config-server
+- http://localhost:8500 -> Consul
+- http://localhost:15672 -> RabbitMQ
+- http://localhost:6379 -> Redis (sem interface Web)
+
+Nosso objetivo é disponibilizar todos através de uma única porta, que será nosso API Gateway, deste modo ficaremos com:
+
+- http://localhost:9090/livro-service -> livro-service
+- http://localhost:9090/avaliacao-service -> avaliacao-service
 
 ## Fontes
 - https://nordicapis.com/api-gateways-direct-microservices-architecture/
