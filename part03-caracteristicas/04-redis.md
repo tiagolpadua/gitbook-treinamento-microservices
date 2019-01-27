@@ -251,6 +251,14 @@ Para incluir um TTL (time to live) do cache, adicione a propriedade ```spring.ca
 spring.cache.redis.time-to-live=5000
 ```
 
+Um toque final interessante é configurar o cache para ser desabilitado durante a execução dos testes, uma vez que o teste pode ser realizado em um ambiente de CI/CD onde o servidor Redis pode estar indisponível, para isso, adicione a propriedade ```spring.data.redis.repositories.enabled=false``` no arquivo **application.properties** da pasta ```/src/test/resources```:
+
+**application.properties**
+
+```
+spring.data.redis.repositories.enabled=false
+```
+
 ## Fontes
 
 - https://redis.io/topics/introduction

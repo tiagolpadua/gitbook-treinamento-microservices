@@ -1,3 +1,5 @@
+build info
+
 https://www.companyweb.com.br/treinamento/metodologias-praticas/design-arquitetural-de-microservico/
 
 https://dzone.com/articles/quick-guide-to-microservices-with-spring-boot-20-e
