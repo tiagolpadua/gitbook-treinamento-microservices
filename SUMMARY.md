@@ -11,9 +11,12 @@
     * [Persistindo em um Banco de Dados](part01-microsservicos/08-persistindo.md)
 * [RabbitMQ](part02-rabbitmq/README.md)
     * [Principais Conceitos](part02-rabbitmq/01-conceitos.md)
-    * [Uso em alta disponibilidade (cluster)](part02-rabbitmq/02-ha.md)
     * [Cadastro de Livro Assíncrono](part02-rabbitmq/02-async-book.md)
+    * [Uso em alta disponibilidade (cluster)](part02-rabbitmq/03-ha.md)
 * [Características da Arquitetura Orientada a Microsserviço](part03-caracteristicas/README.md)
+    * [Config Server](part03-caracteristicas/01-config-server.md)
+    * [Service Discovery com Consul](part03-caracteristicas/02-consul.md)
+    * [Service Boot Actuator](part03-caracteristicas/03-actuator.md)
 
 <!--
 

@@ -1,32 +1,5 @@
 # Microsserviços
 
-<!-- 
-(Fonte https://martinfowler.com/bliki/BoundedContext.html)
-
-O Contexto Delimitado é um padrão central no Design Dirigido por Domínio. É o foco da seção de design estratégico do DDD, que trata de grandes modelos e equipes. O DDD lida com grandes modelos dividindo-os em diferentes contextos limitados e sendo explícito sobre suas inter-relações.
-
-![](../assets/01-bounded-context.png)
-
-DDD é sobre projetar software baseado em modelos do domínio. Um modelo funciona como uma "Linguagem Ubíqua" (prática de construir uma linguagem comum e rigorosa entre desenvolvedores e usuários) para ajudar na comunicação entre desenvolvedores de software e especialistas em domínio. Ele também atua como a base conceitual para o design do próprio software - como ele é dividido em objetos ou funções. Para ser eficaz, um modelo precisa ser unificado - isto é, ser internamente consistente para que não haja contradições dentro dele.
-
-À medida que você tenta modelar um domínio maior, fica cada vez mais difícil construir um único modelo unificado. Diferentes grupos de pessoas usarão vocabulários sutilmente diferentes em diferentes partes de uma grande organização. A precisão da modelagem acorre rapidamente a isso, muitas vezes levando a muita confusão. Normalmente, essa confusão se concentra nos conceitos centrais do domínio. No início de minha carreira trabalhei com um utilitário de eletricidade - aqui a palavra "metro" significava coisas sutilmente diferentes para diferentes partes da organização: era a conexão entre a rede e um local, a rede e um cliente, o próprio medidor físico ( que pode ser substituído se estiver com defeito). Esses polissemes sutis poderiam ser suavizados na conversa, mas não no mundo preciso dos computadores. Repetidamente, vejo essa confusão se repetir com polissêmicos como "Cliente" e "Produto".
-
-Naqueles dias mais jovens, fomos aconselhados a construir um modelo unificado de toda a empresa, mas a DDD reconhece que aprendemos que "a unificação total do modelo de domínio para um sistema grande não será viável ou econômica" [1]. Então, ao invés disso, o DDD divide um sistema grande em Contextos Limitados, cada um dos quais pode ter um modelo unificado - essencialmente uma maneira de estruturar o MultipleCanonicalModels.
-
-Os contextos limitados têm conceitos não relacionados (como um ticket de suporte existente apenas em um contexto de suporte ao cliente), mas também compartilham conceitos (como produtos e clientes). Contextos diferentes podem ter modelos completamente diferentes de conceitos comuns, com mecanismos para mapear esses conceitos polissêmicos para integração. Vários padrões de DDD exploram relações alternativas entre contextos.
-
-Vários fatores desenham limites entre os contextos. Normalmente o dominante é a cultura humana, já que os modelos funcionam como Linguagem Ubíqua, você precisa de um modelo diferente quando a linguagem muda. Você também encontra vários contextos dentro do mesmo contexto de domínio, como a separação entre os modelos de banco de dados na memória e relacional em um único aplicação. Esse limite é definido pela maneira diferente como representamos os modelos.
-
-O design estratégico da DDD segue descrevendo uma variedade de formas de relacionamento entre os Contextos Limitados. Geralmente vale a pena descrevê-los usando um mapa de contexto.
--->
-
-<!--
-https://hackernoon.com/microservices-bounded-context-cohesion-what-do-they-have-in-common-1107b70342b3
-https://www.eduardopires.net.br/2016/03/ddd-bounded-context/
-https://docs.microsoft.com/pt-br/dotnet/standard/microservices-architecture/microservice-ddd-cqrs-patterns/microservice-domain-model
-http://www.pedromendes.com.br/2016/01/02/microservicos/ - Microsserviços, por Martin Fowler e James Lewis
--->
-
 ## Definição de Microsserviços
 
 Microsserviços são uma abordagem arquitetural para a criação de aplicações. O que diferencia a arquitetura de microsserviços das abordagens monolíticas tradicionais é como ela decompõe a aplicação por funções básicas. Cada função é denominada um serviço e pode ser criada e implantada de maneira independente. Isso significa que cada serviço individual pode funcionar ou falhar sem comprometer os demais.
@@ -74,7 +47,6 @@ Tudo requer arquitetura. Todos somos arquitetos em nosso dia a dia. Em nossa cas
 A arquitetura de software é "o conjunto de estruturas necessárias para raciocinar sobre o sistema, que incluem elementos de software, relações entre eles e propriedades de ambos".
 
 Uma boa arquitetura de software é descrever os padrões, camadas ou níveis aplicados que são usados ​​para definir a clara separação de interesses do seu negócio.
-
 
 ### Por que isso é necessário? (Why)
 
@@ -124,10 +96,6 @@ Qualquer arquitetura de software possui dois componentes principais.
 1. **Padrões de Arquitetura**: Define as estratégias de implementação dos componentes;
 1. **Estilo de Arquitetura**: Define os componentes e conectores;
 
-<!--
-https://medium.com/@maheshwar.ligade/software-architecture-what-why-how-34061f105dc2
--->
-
 ## Desenvolvimento de Softwares
 
 ### Análise Estruturada
@@ -146,7 +114,6 @@ O dicionário de dados é uma listagem organizada de todos os elementos de dados
 - Tabelas de Decisão
 - Diagrama Entidade-Relacionamento (DER)
 - Diagrama de Transição de Estados (DTE)
-
 
 - Diagrama de Fluxo de Dados - DFD
 ![](../assets/01-dfd.jpg)
@@ -252,7 +219,6 @@ A arquitetura orientada a serviço serve pra resolver essa questão, pois estrut
 
 Por um lado, isso permite criar, testar e ajustar os serviços de maneira simultânea, eliminando os ciclos de desenvolvimento monolíticos. No entanto, por outro lado, o ESB representa um ponto único de falha no sistema inteiro. Portanto, todo o esforço empregado para eliminar uma estrutura monolítica, de certo modo, serviu apenas para criar outra: o ESB, que potencialmente pode congestionar toda a organização.
 
-
 ### Então, qual é a diferença entre a SOA e a arquitetura de microsserviços?
 
 Os microsserviços podem se comunicar entre si, normalmente sem monitoração de estado. Portanto, as aplicações criadas dessa maneira podem ser mais tolerantes a falhas e depender menos de um único ESB. Além disso, as equipes de desenvolvimento podem escolher as ferramentas que desejarem, pois os microsserviços podem se comunicar por meio de interfaces de programação de aplicações (APIs) independentes de linguagem.
@@ -260,11 +226,6 @@ Os microsserviços podem se comunicar entre si, normalmente sem monitoração de
 Levando em consideração a história da SOA, os microsserviços não são uma ideia completamente nova. Porém, eles se tornaram mais viáveis graças aos avanços nas tecnologias de containerização. Com os containers Linux, agora é possível executar várias partes de uma aplicação de maneira independente no mesmo hardware e com um controle muito maior sobre os componentes individuais e ciclos de vida.
 
 O maior desafio para a adoção de qualquer arquitetura nova é dar o primeiro passo. Você quer criar aplicações novas ou transformar as antigas? Em ambos os casos, é bom refletir sobre os benefícios e os desafios de criar microsserviços.
-
-<!--
-http://grupotads2014.blogspot.com/2014/04/analise-estruturada-vs-orientada-objetos.html
-http://www.luiztools.com.br/post/microservices-vs-soa-entenda-as-diferencas/
--->
 
 ## Fatores Chaves de Sucesso para Implementação de Microsserviço
 
@@ -282,11 +243,6 @@ Além das mudanças na cultura e nos processos, a complexidade e a eficiência s
 1. ***Conectividade***: considere a detecção de serviços, seja de maneira centralizada ou integrada.
 
 ![](../assets/microservices.png)
-<!-- 
-https://pt.slideshare.net/DustinRuehle/success-factors-for-a-mature-microservices-implementation
-https://techbeacon.com/app-dev-testing/5-fundamentals-successful-microservice-design
-https://dzone.com/articles/microservices-keys-to-success
--->
 
 ## Fontes
 
@@ -294,3 +250,40 @@ https://dzone.com/articles/microservices-keys-to-success
 - https://medium.com/@maheshwar.ligade/software-architecture-what-why-how-34061f105dc2
 - http://grupotads2014.blogspot.com/2014/04/analise-estruturada-vs-orientada-objetos.html
 - https://www.ibm.com/support/knowledgecenter/en/SSMQ79_9.5.1/com.ibm.egl.pg.doc/topics/pegl_serv_overview.html
+
+<!-- 
+https://medium.com/@maheshwar.ligade/software-architecture-what-why-how-34061f105dc2
+
+http://grupotads2014.blogspot.com/2014/04/analise-estruturada-vs-orientada-objetos.html
+http://www.luiztools.com.br/post/microservices-vs-soa-entenda-as-diferencas/
+
+
+https://pt.slideshare.net/DustinRuehle/success-factors-for-a-mature-microservices-implementation
+https://techbeacon.com/app-dev-testing/5-fundamentals-successful-microservice-design
+https://dzone.com/articles/microservices-keys-to-success
+
+(Fonte https://martinfowler.com/bliki/BoundedContext.html)
+
+O Contexto Delimitado é um padrão central no Design Dirigido por Domínio. É o foco da seção de design estratégico do DDD, que trata de grandes modelos e equipes. O DDD lida com grandes modelos dividindo-os em diferentes contextos limitados e sendo explícito sobre suas inter-relações.
+
+![](../assets/01-bounded-context.png)
+
+DDD é sobre projetar software baseado em modelos do domínio. Um modelo funciona como uma "Linguagem Ubíqua" (prática de construir uma linguagem comum e rigorosa entre desenvolvedores e usuários) para ajudar na comunicação entre desenvolvedores de software e especialistas em domínio. Ele também atua como a base conceitual para o design do próprio software - como ele é dividido em objetos ou funções. Para ser eficaz, um modelo precisa ser unificado - isto é, ser internamente consistente para que não haja contradições dentro dele.
+
+À medida que você tenta modelar um domínio maior, fica cada vez mais difícil construir um único modelo unificado. Diferentes grupos de pessoas usarão vocabulários sutilmente diferentes em diferentes partes de uma grande organização. A precisão da modelagem acorre rapidamente a isso, muitas vezes levando a muita confusão. Normalmente, essa confusão se concentra nos conceitos centrais do domínio. No início de minha carreira trabalhei com um utilitário de eletricidade - aqui a palavra "metro" significava coisas sutilmente diferentes para diferentes partes da organização: era a conexão entre a rede e um local, a rede e um cliente, o próprio medidor físico ( que pode ser substituído se estiver com defeito). Esses polissemes sutis poderiam ser suavizados na conversa, mas não no mundo preciso dos computadores. Repetidamente, vejo essa confusão se repetir com polissêmicos como "Cliente" e "Produto".
+
+Naqueles dias mais jovens, fomos aconselhados a construir um modelo unificado de toda a empresa, mas a DDD reconhece que aprendemos que "a unificação total do modelo de domínio para um sistema grande não será viável ou econômica" [1]. Então, ao invés disso, o DDD divide um sistema grande em Contextos Limitados, cada um dos quais pode ter um modelo unificado - essencialmente uma maneira de estruturar o MultipleCanonicalModels.
+
+Os contextos limitados têm conceitos não relacionados (como um ticket de suporte existente apenas em um contexto de suporte ao cliente), mas também compartilham conceitos (como produtos e clientes). Contextos diferentes podem ter modelos completamente diferentes de conceitos comuns, com mecanismos para mapear esses conceitos polissêmicos para integração. Vários padrões de DDD exploram relações alternativas entre contextos.
+
+Vários fatores desenham limites entre os contextos. Normalmente o dominante é a cultura humana, já que os modelos funcionam como Linguagem Ubíqua, você precisa de um modelo diferente quando a linguagem muda. Você também encontra vários contextos dentro do mesmo contexto de domínio, como a separação entre os modelos de banco de dados na memória e relacional em um único aplicação. Esse limite é definido pela maneira diferente como representamos os modelos.
+
+O design estratégico da DDD segue descrevendo uma variedade de formas de relacionamento entre os Contextos Limitados. Geralmente vale a pena descrevê-los usando um mapa de contexto.
+-->
+
+<!--
+https://hackernoon.com/microservices-bounded-context-cohesion-what-do-they-have-in-common-1107b70342b3
+https://www.eduardopires.net.br/2016/03/ddd-bounded-context/
+https://docs.microsoft.com/pt-br/dotnet/standard/microservices-architecture/microservice-ddd-cqrs-patterns/microservice-domain-model
+http://www.pedromendes.com.br/2016/01/02/microservicos/ - Microsserviços, por Martin Fowler e James Lewis
+-->

@@ -397,6 +397,8 @@ Tudo deve continuar funcionando como antes, porém, ao incluirmos um livro, a sa
 
 Perceba que o conteúdo do ```Body``` é um JSON e ```contentType``` agora é ```application/json```.
 
+> Para desabilitar temporariamente o RabbitMQ e evitar erros de conexão durante o restante do treinamento, anote a classe Receiver com ```@Profile("disabled")```
+
 ## Fontes
 
 - https://spring.io/projects/spring-amqp
