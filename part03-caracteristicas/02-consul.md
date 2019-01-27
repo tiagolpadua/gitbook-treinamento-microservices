@@ -4,7 +4,7 @@ A descoberta de serviço é um dos princípios fundamentais de uma arquitetura b
 
 ## Como ativar
 
-Para ativar o Consul Service Discovery, é necessário incluir a dependência spring-cloud-starter-consul-discovery.
+Para ativar o Consul Service Discovery, é necessário incluir a dependência ```spring-cloud-starter-consul-discovery```.
 
 ## Registrando com o Consul
 

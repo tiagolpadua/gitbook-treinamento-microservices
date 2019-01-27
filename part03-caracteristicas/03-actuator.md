@@ -57,3 +57,4 @@ Vamos dar uma olhada em alguns end-points disponíveis:
 Conforme descrito, devemos incluir a depenência ```spring-boot-starter-actuator``` no ```pom.xml``` da aplicação e a configuração ```management.endpoints.web.exposure.include=*``` no arquivo de configuração da aplicação.
 
 Faça estes ajustes, reinicie a aplicação e veja que agora ela está passando nos Health Checks do Consul.
+

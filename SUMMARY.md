@@ -17,6 +17,7 @@
     * [Config Server](part03-caracteristicas/01-config-server.md)
     * [Service Discovery com Consul](part03-caracteristicas/02-consul.md)
     * [Service Boot Actuator](part03-caracteristicas/03-actuator.md)
+    * [Cache com Redis](part03-caracteristicas/04-redis.md)
 
 <!--
 
