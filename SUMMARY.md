@@ -22,6 +22,9 @@
 * [Design Arquitetural de Microsserviços](part04-design/README.md)
     * [Análise de domínio](part04-design/01-dominio.md)
     * [Identificando limites de microsserviço](part04-design/02-limites.md)
+    * [Considerações de dados](part04-design/03-dados.md)
+    * [Comunicação entre serviços](part04-design/04-comunicacao.md)
+    * [Design de API](part04-design/05-design.md)
 
 <!--
 
