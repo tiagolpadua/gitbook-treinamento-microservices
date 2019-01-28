@@ -25,6 +25,10 @@
     * [Considerações de dados](part04-design/03-dados.md)
     * [Comunicação entre serviços](part04-design/04-comunicacao.md)
     * [Design de API](part04-design/05-design.md)
+    * [Ingestão de dados e fluxo de trabalho](part04-design/06-ingestao.md)
+    * [Gateways de API](part04-design/07-gateways.md)
+    * [Log e monitoramento](part04-design/08-log.md)
+    * [Integração contínua](part04-design/09-integracao.md)
 
 <!--
 
