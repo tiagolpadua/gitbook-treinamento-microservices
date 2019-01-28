@@ -95,6 +95,96 @@ Uma variação desse padrão é o padrão Backend for Front-End. Ele define um g
 
 Neste exemplo, existem três tipos de clientes: aplicativo da web, aplicativo móvel e aplicativo externo de terceiros. Existem três gateways de API diferentes. Cada um deles fornece uma API para seu cliente.
 
+## Spring Cloud Gateway
+
+É uma ferramenta que fornece mecanismos de roteamento prontos para uso, geralmente usados em aplicativos de microsserviços, como forma de ocultar vários serviços por trás de uma única fachada.
+
+O Spring Cloud Gateway tem como objetivo fornecer uma maneira simples, mas eficaz, de rotear para APIs e fornecer soluções para questões como segurança, monitoramento/métricas e resiliência.
+
+### Recursos do Spring Cloud Gateway
+
+- Construído no Spring Framework 5, Project Reactor e Spring Boot 2.0;
+- Capaz de combinar rotas em qualquer atributo de solicitação;
+- Predicados e filtros são específicos para rotas;
+- Integração do Circuit Breaker Hystrix;
+- Integração Spring Cloud DiscoveryClient
+- Fácil de escrever Predicados e Filtros
+- Limitação de Request Rate;
+- Reescrita de caminho;
+
+### Routing Handler
+
+Com foco em roteamento de solicitações, o Spring Cloud Gateway encaminha solicitações para um *Gateway Handler Mapping*  - que determina o que deve ser feito com solicitações correspondentes a uma rota específica.
+
+Vamos começar com um exemplo rápido de como o *Gateway Handler* resolve as configurações de rota usando o RouteLocator:
+
+```java
+@Bean
+public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
+    return builder.routes()
+      .route("r1", r -> r.host("**.baeldung.com")
+        .and()
+        .path("/baeldung")
+        .uri("http://baeldung.com"))
+      .route(r -> r.host("**.baeldung.com")
+        .and()
+        .path("/myOtherRouting")
+        .filters(f -> f.prefixPath("/myPrefix"))
+        .uri("http://othersite.com")
+        .id("myOtherID"))
+    .build();
+}
+```
+
+Observe como usamos os principais blocos de construção desta API:
+
+- **Route** - a API principal do gateway. É definido por uma determinada identificação (ID), um destino (URI) e um conjunto de predicados e filtros;
+- **Predicate** - um predicado do Java 8 - que é usado para correspondência de solicitações HTTP usando cabeçalhos, métodos ou parâmetros;
+- **Filter** - um WebFilter Spring padrão;
+
+### Dynamic Routing
+
+Assim como o Zuul, o Spring Cloud Gateway fornece meios para rotear solicitações para diferentes serviços.
+
+A configuração de roteamento pode ser criada usando Java puro (RouteLocator) ou usando a configuração de propriedades:
+
+```
+spring:
+  application:
+    name: gateway-service  
+  cloud:
+    gateway:
+      routes:
+      - id: baeldung
+        uri: baeldung.com
+      - id: myOtherRouting
+        uri: localhost:9999
+```
+
+### Suporte ao Spring Cloud DiscoveryClient
+
+O Spring Cloud Gateway pode ser facilmente integrado às bibliotecas de Service Discovery and Registry, como o Eureka Server e o Consul:
+
+```java
+@Configuration
+@EnableDiscoveryClient
+public class GatewayDiscoveryConfiguration {
+  
+    @Bean
+    public DiscoveryClientRouteDefinitionLocator 
+      discoveryClientRouteLocator(DiscoveryClient discoveryClient) {
+  
+        return new DiscoveryClientRouteDefinitionLocator(discoveryClient);
+    }
+}
+```
+
+### Monitoramento
+
+O Spring Cloud Gateway faz uso da API do Actuator, uma biblioteca bem conhecida do Spring-Boot que fornece vários serviços prontos para monitorar o aplicativo.
+
+Depois que a API do Actuator é instalada e configurada, os recursos de monitoramento do gateway podem ser visualizados acessando endpoint ```/gateway/```.
+
 ## Utilizando um Gateway API em nosso projeto
 
 O primeiro passo é importarmos o projeto avaliacoes-service e executá-lo, deste modo, ficaremos com os seguintes serviços executados localmente:
@@ -106,10 +196,134 @@ O primeiro passo é importarmos o projeto avaliacoes-service e executá-lo, dest
 - http://localhost:15672 -> RabbitMQ
 - http://localhost:6379 -> Redis (sem interface Web)
 
-Nosso objetivo é disponibilizar todos através de uma única porta, que será nosso API Gateway, deste modo ficaremos com:
+Nosso objetivo é disponibilizar nossos microsserviços através de uma única porta, que será nosso API Gateway, deste modo ficaremos com:
 
-- http://localhost:9090/livro-service -> livro-service
-- http://localhost:9090/avaliacao-service -> avaliacao-service
+- http://localhost:9090/livros -> http://localhost:8080/livros
+- http://localhost:9090/avaliacoes -> http://localhost:8080/avaliacoes
+
+### Criando um projeto de Gateway
+
+Acesse https://start.spring.io/, em Group altere para ```com.acme```, em Artifact digite ```gateway``` e nas dependências busque por ```Gateway```, ```Consul Discovery```, ```Config Client``` e ```Actuator```, gere o projeto, faça o download e importe no Spring Tools.
+
+Podemos ajustar as configurações para que o Gateway utilize as configurações armazenadas através do Config Server assim como utilizar o serviço de discovery do Consul para encontrá-lo (como já fizemos com as outras aplicações):
+
+**bootstrap.properties**
+
+```
+spring.cloud.config.name=gateway
+spring.profiles.active=default
+
+spring.cloud.config.discovery.serviceId=config-server
+spring.cloud.config.fail-fast=true
+
+spring.cloud.consul.host=localhost
+spring.cloud.consul.port=8500
+spring.cloud.consul.discovery.instanceId=${spring.cloud.config.name}:${random.value}
+spring.cloud.consul.discovery.serviceName=${spring.cloud.config.name}
+
+management.endpoints.web.exposure.include=*
+```
+
+O último passo é criar um arquivo de configurações para nosso gateway no config-repo, neste caso, utilizaremos o formato yml pois existem configurações multivaloradas:
+
+**gateway.yml**
+
+```yml
+server:
+  port: 9090
+  
+spring:
+  cloud:
+    gateway:
+      routes:
+      - id: livro_service_route
+        uri: http://localhost:8080
+        predicates:
+        - Path=/livros
+      - id: avalicacao_service_route
+        uri: http://localhost:8081
+        predicates:
+        - Path=/avaliacoes
+    config:
+      name: gateway
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        instanceId: ${spring.cloud.config.name}:${random.value}
+        serviceName: ${spring.cloud.config.name}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+```
+
+Acesse http://localhost:9090/livros e http://localhost:9090/avaliacoes para testar o funcionamento do Gateway.
+
+### Utilizando o Discovery e o Load Balancer
+
+Uma vez que nossos microsserviços já se encontram disponíveis para descoberta no Consul não seria adequado que nosso gateway buscasse esta informação de lá? Isto é possível de ser feito, primeiro, devemos ativar o serviço de cliente de Discovery na classe ```GatewayApplication```:
+
+**GatewayApplication.java**
+
+```java
+package com.acme.gateway;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+
+@SpringBootApplication
+// Novidade aqui
+@EnableDiscoveryClient
+public class GatewayApplication {
+	public static void main(String[] args) {
+		SpringApplication.run(GatewayApplication.class, args);
+	}
+}
+```
+
+O segundo passo é ajustar as URLs de nossos microsserviços utilizando o esquema "lb" seguido do nome do serviço ao invés de sua URL:
+
+**gateway.yml**
+
+```yml
+server:
+  port: 9090
+  
+spring:
+  cloud:
+    gateway:
+      routes:
+      - id: livro_service_route
+        # Novidade aqui
+        uri: lb://livro-service
+        predicates:
+        - Path=/livros
+      - id: avalicacao_service_route
+        # Novidade aqui
+        uri: lb://avaliacao-service
+        predicates:
+        - Path=/avaliacoes
+    config:
+      name: gateway
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        instanceId: ${spring.cloud.config.name}:${random.value}
+        serviceName: ${spring.cloud.config.name}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+```
+
+Nosso gateway agora já deve estar funcionando corretamente descobrindo os serviços a partir do Consul.
 
 ## Fontes
 - https://nordicapis.com/api-gateways-direct-microservices-architecture/
