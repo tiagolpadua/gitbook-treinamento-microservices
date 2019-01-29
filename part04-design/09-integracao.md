@@ -1,4 +1,4 @@
-# Integração contínua
+# Integração Contínua
 
 CI/CD (integração contínua e entrega contínua) são um requisito fundamental para alcançar êxito com microsserviços. Sem um bom processo de CI/CD, você não obterá a agilidade que os microsserviços prometem. Alguns dos desafios de CI/CD para microsserviços são oriundos de se ter várias bases de código e ambientes de build heterogêneos para os diversos serviços. 
 
