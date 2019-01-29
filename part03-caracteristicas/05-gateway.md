@@ -173,7 +173,6 @@ public class GatewayDiscoveryConfiguration {
     @Bean
     public DiscoveryClientRouteDefinitionLocator 
       discoveryClientRouteLocator(DiscoveryClient discoveryClient) {
-  
         return new DiscoveryClientRouteDefinitionLocator(discoveryClient);
     }
 }

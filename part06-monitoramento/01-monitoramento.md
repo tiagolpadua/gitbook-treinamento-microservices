@@ -1,4 +1,4 @@
-# Monitorando Nosso Projeto
+# Monitoramento
 
 ## Prometheus
 
@@ -50,6 +50,10 @@ Prometheus valoriza a confiabilidade. Você sempre pode ver quais estatísticas 
 ## Grafana
 
 O Grafana permite consultar, visualizar, alertar e entender suas métricas, independentemente de onde elas estejam armazenadas. Crier, explorar e compartilhar painéis com sua equipe e promover uma cultura orientada por dados.
+
+## Micrometer
+
+O Micrometer fornece uma fachada simples sobre os clientes de instrumentação para os sistemas de monitoramento mais populares, permitindo instrumentar o código do aplicativo baseado em JVM sem vendor lock-in. Pense SLF4J, mas para métricas.
 
 ## Utilizando em nosso projeto
 
@@ -112,13 +116,12 @@ O link direto é https://grafana.com/dashboards/2
 
 Clique em "+" e "Import" e cole o conteúdo do JSON, em seguida aponte para a fonte de dados correta.
 
-## Micrometer
-
-https://micrometer.io/
-
 ## Configurando a aplicação
 
-Incluir as dependencias do micrometer na aplicação
+Incluir as dependencias do Micrometer na aplicação livro-service:
+
+**pom.xml**
+
 ```xml
 <!-- Micrometer core dependecy  -->
 <dependency>
@@ -134,9 +137,22 @@ Incluir as dependencias do micrometer na aplicação
 
 Consultar a url http://localhost:8080/actuator, deve retornar um end-point do prometheus
 
-http://localhost:8080/actuator/prometheus deve retornar as métricas do prometheus
+O end-point http://localhost:8080/actuator/prometheus deve retornar as métricas do prometheus.
 
+Nosso próximo passo é configurar o Prometheus para que receba as métricas de nossa apicação:
 
+```yml
+global:
+
+  # Configuração atual omitida
+
+  # Novidade aqui
+  - job_name: 'livro-service'
+    scrape_interval: 5s
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['localhost:8080']
+```
 
 ## Fontes
 - https://prometheus.io/docs/introduction/overview/

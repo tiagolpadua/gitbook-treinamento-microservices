@@ -33,3 +33,5 @@ Executando a partir da linha de comandos:
 - http://localhost:15672 -> RabbitMQ
 - http://localhost:6379 -> Redis (sem interface Web)
 - http://localhost:9090 -> Gateway
+
+Exclusão das avaliações após excluir um livro usando RabbitMQ
