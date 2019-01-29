@@ -16,15 +16,15 @@ Executando a partir da linha de comandos:
 
 ## Levantando o ambiente
 
-1 - Verificar se o Redis está ativo -> Windows -> Redis client -> info
-2 - RabbitMQ -> docker-compose up -> http://localhost:15672
+1 - Verificar se o Redis está ativo -> Windows -> Redis client -> info (porta 6379)
+2 - RabbitMQ -> docker-compose up -> http://localhost:15672 (guest/guest)
 3 - Consul -> consul.bat -> http://localhost:8500
 4 - Prometheus -> prometheus.bat -> http://localhost:9091
 5 - Grafana -> grafana.bat -> http://localhost:3000
-6 - Config Server
-7 - Gateway
-8 - livro-service
-9 - avaliacao-service
+6 - Config Server - http://localhost:8888
+7 - Gateway - http://localhost:9090/livros http://localhost:9090/avaliacoes
+8 - livro-service - http://localhost:8080
+9 - avaliacao-service - http://localhost:8081
 
 - http://localhost:8080 -> livro-service
 - http://localhost:8081 -> avaliacao-service
