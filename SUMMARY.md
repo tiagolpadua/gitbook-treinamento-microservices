@@ -34,6 +34,7 @@
 * [Implantação e Monitoramento](part06-monitoramento/README.md)
     * [Monitoramento](part06-monitoramento/01-monitoramento.md)
     * [Tolerância a Falhas](part06-monitoramento/02-falhas.md)
+    * [Testes](part06-monitoramento/03-testes.md)
 
 <!--
 

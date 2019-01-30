@@ -151,8 +151,9 @@ public Avaliacao adicionarAvaliacao(@RequestBody Avaliacao avaliacao) throws IOE
 
     // Novidades aqui
     try {
-        restTemplate.getForEntity(livroResourceUrl + avaliacao.getLivroId(), Livro.class);
-        logger.error("Livro " + avaliacao.getLivroId() + " localizado");
+        ResponseEntity<Livro> responseLivro = restTemplate.getForEntity(livroResourceUrl + avaliacao.getLivroId(),
+                Livro.class);
+        logger.info("Livro " + responseLivro.getBody().getTitulo() + " localizado");
     } catch (HttpClientErrorException ex) {
         logger.error("Ocorreu um erro na comunicação com o serviço de livros", ex);
         if (ex.getRawStatusCode() == HttpStatus.NOT_FOUND.value()) {
