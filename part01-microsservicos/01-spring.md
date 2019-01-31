@@ -12,10 +12,10 @@ O Spring permite que você construa aplicativos a partir de "objetos Java simple
 
 Exemplos de como você, como desenvolvedor de aplicativos, pode usar a vantagem da plataforma Spring:
 
-- Faça um método Java executar em uma transação de banco de dados sem ter que lidar com APIs de transação.
-- Torne um método Java local um procedimento remoto sem precisar lidar com APIs remotas.
-- Torne um método Java local uma operação de gerenciamento sem ter que lidar com APIs JMX.
-- Torne um método Java local um manipulador de mensagens sem ter que lidar com as APIs do JMS.
+- Faça um método Java executar em uma transação de banco de dados sem ter que lidar com APIs de transação;
+- Torne um método Java local um procedimento remoto sem precisar lidar com APIs remotas;
+- Torne um método Java local uma operação de gerenciamento sem ter que lidar com APIs JMX;
+- Torne um método Java local um manipulador de mensagens sem ter que lidar com as APIs do JMS;
 
 ![](../assets/spring-components.gif)
 
