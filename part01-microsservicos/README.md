@@ -129,7 +129,7 @@ Bem, receio que a resposta seja "não".
 Embora isso possa não parecer tão promissor, há, no entanto, alguns temas comuns que muitas organizações que adotaram arquiteturas de microsserviços seguiram e com as quais acabaram encontrando sucesso. Vou discutir alguns desses temas comuns abaixo.
 
 ### 1 - Decompor
-Uma das maneiras de tornar nosso trabalho mais fácil pode ser fazer a definição de serviços correspondentes aos recursos de negócios. Uma capacidade de negócios é algo que uma empresa faz para fornecer valor a seus usuários finais.
+Uma das maneiras de tornar nosso trabalho mais fácil pode ser realizar a definição de serviços correspondentes aos recursos de negócios. Uma capacidade de negócios é algo que uma empresa faz para fornecer valor a seus usuários finais.
 
 Identificar os recursos de negócios e os serviços correspondentes requer um alto nível de compreensão dos negócios. Por exemplo, os recursos de negócios para um aplicativo de compras on-line podem incluir o seguinte:
 
@@ -175,7 +175,11 @@ O Serviço 2 deve acessar o Serviço 1 e evitar ir diretamente ao banco de dados
 
 Como mencionado, escolha cuidadosamente os protocolos para comunicação entre serviços. Por exemplo, se o Java RMI for escolhido, o usuário da API não apenas ficará restrito ao uso de uma linguagem baseada em JVM, mas, além disso, o protocolo é bastante frágil porque é difícil manter a compatibilidade com a API.
 
+<!-- 
+
 Por fim, ao fornecer bibliotecas clientes aos clientes para usar o serviço, pense com cuidado, porque é melhor evitar a repetição do código de integração. Se esse erro for cometido, ele também poderá restringir as alterações feitas na API se os clientes confiarem em detalhes desnecessários.
+
+-->
 
 ### 4 - Descentralizar
 
@@ -199,13 +203,15 @@ Meu conselho geral para esses tipos de arquiteturas seria mantê-los relativamen
 
 ### 5 - Implantação (deploy)
 
-É importante escrever Contratos Direcionados ao Consumidor para qualquer API que esteja sendo dependente. Isso garante que novas alterações nessa API não interrompam sua API.
+É importante escrever Contratos Direcionados ao Consumidor [^1] para qualquer API que esteja sendo dependente. Isso garante que novas alterações nessa API não interrompam sua API.
+
+[^1]: https://reflectoring.io/7-reasons-for-consumer-driven-contracts , https://spring.io/guides/gs/contract-rest
 
 Nos contratos orientados ao consumidor, cada API do consumidor captura suas expectativas do provedor em um contrato separado. Todos esses contratos são compartilhados com o fornecedor para que eles obtenham informações sobre as obrigações que devem cumprir para cada cliente individual.
 
-Os contratos orientados pelo consumidor devem passar completamente antes de serem implantados e antes que qualquer alteração seja feita na API. Também ajuda o provedor a saber quais serviços estão dependendo e como outros serviços dependem dele.
+Os contratos orientados pelo consumidor devem passar por testes antes de serem implantados e antes que qualquer alteração seja feita na API. Também ajuda o provedor a saber quais serviços estão dependendo e como outros serviços dependem dele.
 
-Quando se trata de implantar microsserviços independentes, existem dois modelos comuns.
+Quando se trata de implantar microsserviços independentes, existem dois modelos comuns de implantação.
 
 #### Vários microsserviços por sistema operacional
 
@@ -231,7 +237,7 @@ Primeiro, versione a sua API e quando as alterações são necessárias para a A
 
 Um problema com esta abordagem é que se torna difícil manter as várias versões. Quaisquer novas alterações ou correções de erros devem ser feitas em ambas as versões.
 
-Por essa razão, uma abordagem alternativa pode ser considerada na qual outro ponto final é implementado no mesmo serviço quando as mudanças são necessárias. Depois que o novo *end-point* estiver sendo totalmente utilizado por todos os serviços, o *end-point* antigo poderá ser excluído.
+Por essa razão, uma abordagem alternativa pode ser considerada na qual outro *end-point*  é implementado no mesmo serviço quando as mudanças são necessárias. Depois que o novo *end-point* estiver sendo totalmente utilizado por todos os serviços, o *end-point* antigo poderá ser excluído.
 
 A vantagem dessa abordagem é que é mais fácil manter o serviço, pois sempre haverá apenas uma versão da API em execução.
 
@@ -249,7 +255,7 @@ Em uma arquitetura de microsserviços, ao longo do tempo, cada serviço começa 
 
 O gateway de API também pode implementar segurança, como verificar se o cliente está autorizado a executar a solicitação. Existem algumas ferramentas como o Zookeeper, que podem ser usadas para a Descoberta de Serviço (embora não tenha sido construída para esse propósito). Existem muito mais ferramentas modernas, como o etcd e o Cônsul de Hashicorp, que tratam a Descoberta de Serviços como um cidadão de primeira classe e definitivamente vale a pena olhar para esse problema.
 
-### 7 - Falha
+### 7 - Falhas
 
 Um ponto importante a entender é que os microsserviços não são resilientes por padrão. Haverá falhas nos serviços. Falhas podem acontecer devido a falhas nos serviços dependentes. Além disso, as falhas podem surgir por vários motivos, como erros no código, tempos limite de rede, etc.
 
