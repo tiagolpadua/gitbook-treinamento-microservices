@@ -34,7 +34,9 @@ Com os microsserviços, suas equipes e tarefas rotineiras podem ser tornar mais 
 
 - **Mais aberta**: Devido ao uso de APIs poliglotas, os desenvolvedores têm liberdade para escolher a melhor linguagem e tecnologia para a função necessária.
 
-## Apresentação do What - Why - How no contexto de Negócio e Desenvolvimento
+<!--
+
+## What - Why - How no contexto de Negócio e Desenvolvimento
 
 ### O que é arquitetura? (What)
 
@@ -48,9 +50,9 @@ A arquitetura de software é "o conjunto de estruturas necessárias para racioci
 
 Uma boa arquitetura de software é descrever os padrões, camadas ou níveis aplicados que são usados ​​para definir a clara separação de interesses do seu negócio.
 
-### Por que isso é necessário? (Why)
+### Por que é necessário? (Why)
 
-Menos é mais. Conforme declarado pela Microsoft, "O objetivo da arquitetura é identificar os requisitos que afetam a estrutura da aplicação. Uma boa arquitetura reduz os riscos de negócios associados à criação de uma *solução técnica*."
+Menos é mais. "O objetivo da arquitetura é identificar os requisitos que afetam a estrutura da aplicação. Uma boa arquitetura reduz os riscos de negócios associados à criação de uma *solução técnica*."
 
 Boa arquitetura é fácil de entender e barata de modificar. O sucesso dos negócios depende da arquitetura.
 
@@ -87,7 +89,7 @@ Existem alguns princípios importantes que precisam ser considerados ao projetar
 
 *Arquitetura de software e design de software são duas coisas diferentes, não se deve misturá-las. A arquitetura de software é o esqueleto, enquanto o design de software é carne.*
 
-Arquitetura de software é sobre o alto nível de abstraçã e design de software é sobre componentes, classes ou módulos.
+Arquitetura de software é sobre o alto nível de abstração e design de software é sobre componentes, classes ou módulos.
 
 Um exemplo de arquitetura de software é o padrão MV*. E exemplos de design de software são DAO e Factory.
 
@@ -95,6 +97,209 @@ Qualquer arquitetura de software possui dois componentes principais.
 
 1. **Padrões de Arquitetura**: Define as estratégias de implementação dos componentes;
 1. **Estilo de Arquitetura**: Define os componentes e conectores;
+
+-->
+
+## O What, Why, e How de uma arquitetura de microsserviços
+
+Há muitos anos que estamos construindo sistemas e melhorando-os. Diversas tecnologias, padrões de arquitetura e melhores práticas surgiram ao longo desses anos. Os microsserviços são um desses padrões de arquitetura que surgiram do mundo do design orientado a domínio, entrega contínua, automação de plataforma e infraestrutura, sistemas escalonáveis, programação poliglota e persistência.
+
+### O que é uma arquitetura de microsserviços em poucas palavras? (What)
+
+Robert C. Martin cunhou o termo princípio da responsabilidade única que afirma "reunir as coisas que mudam pela mesma razão e separar as coisas que mudam por diferentes razões".
+
+Uma arquitetura de microsserviços usa essa mesma abordagem e a estende aos serviços fracamente acoplados que podem ser desenvolvidos, implantados e mantidos de forma independente. Cada um desses serviços é responsável por tarefas discretas e pode se comunicar com outros serviços por meio de APIs simples para resolver um problema de negócios complexo e maior.
+
+### Principais benefícios de uma arquitetura de microsserviços (Why)
+
+Como os serviços constituintes são pequenos, eles podem ser construídos por uma ou mais equipes pequenas desde o início, separadas por limites de serviço, o que facilita a expansão do esforço de desenvolvimento, se necessário.
+
+Uma vez desenvolvidos, esses serviços também podem ser implantados independentemente uns dos outros e, portanto, é fácil identificar serviços ativos e escaloná-los independentemente do aplicativo inteiro. Os microsserviços também oferecem isolamento aprimorado de falhas, em que, no caso de um erro em um serviço, todo o aplicativo não deixa necessariamente de funcionar. Quando o erro é corrigido, a correção pode ser efetuada apenas para o respectivo serviço, em vez de reimplementar um aplicativo inteiro.
+
+Outra vantagem que uma arquitetura de microsserviços traz é facilitar a escolha da pilha de tecnologia (linguagens de programação, bancos de dados, etc.) que é mais adequada para a funcionalidade necessária (serviço) em vez de ser mais padronizada, solução "bala de prata".
+
+### Como eu começo com uma arquitetura de microsserviços? (How)
+
+Espero que agora você esteja convencido de que uma arquitetura de microsserviços pode oferecer algumas vantagens exclusivas em relação às arquiteturas tradicionais e você começou a pensar nesse tipo de abordagem para o seu próximo projeto.
+
+A próxima pergunta que vem à mente é "Como eu começo?" - e - "Existe um conjunto padrão de princípios que eu possa seguir para me ajudar a construir uma arquitetura de microsserviços de uma maneira melhor?"
+
+Bem, receio que a resposta seja "não".
+
+Embora isso possa não parecer tão promissor, há, no entanto, alguns temas comuns que muitas organizações que adotaram arquiteturas de microsserviços seguiram e com as quais acabaram encontrando sucesso. Vou discutir alguns desses temas comuns abaixo.
+
+### 1 - Decompor
+Uma das maneiras de tornar nosso trabalho mais fácil pode ser realizar a definição de serviços correspondentes aos recursos de negócios. Uma capacidade de negócios é algo que uma empresa faz para fornecer valor a seus usuários finais.
+
+Identificar os recursos de negócios e os serviços correspondentes requer um alto nível de compreensão dos negócios. Por exemplo, os recursos de negócios para um aplicativo de compras on-line podem incluir o seguinte:
+
+- Gerenciamento do catálogo de produtos
+- Gerenciamento de estoque
+- Gerenciamento de pedidos
+- Gerenciamento de entrega
+- Gerenciamento de usuários
+- Recomendações de produtos
+- Gerenciamento de avaliações de Produto
+
+Depois que os recursos de negócios forem identificados, os serviços necessários podem ser construídos correspondendo a cada um desses recursos de negócios identificados.
+
+Cada serviço pode pertencer a uma equipe diferente que se torna especialista nesse domínio específico e a um especialista nas tecnologias mais adequadas para esses serviços específicos. Isso geralmente leva a limites de API mais estáveis ​​e equipes mais estáveis.
+
+### 2 - Construindo e Implantando
+
+Depois de decidir sobre os limites de serviço desses pequenos serviços, eles podem ser desenvolvidos por uma ou mais equipes pequenas usando as tecnologias mais adequadas para cada finalidade. Por exemplo, você pode optar por criar um Serviço do Usuário em Java com um banco de dados MySQL e um Serviço de Recomendação do Produto com o Scala / Spark.
+
+Uma vez desenvolvidos, os pipelines CI/CD podem ser configurados com qualquer um dos servidores de CI disponíveis (Jenkins, TeamCity, Go, etc.) para executar os casos de teste automatizados e implantar esses serviços independentemente em diferentes ambientes (integração, controle de qualidade, preparação e produção).
+
+### 3 - Projetar os serviços individuais com cuidado
+
+Ao projetar os serviços, defina-os cuidadosamente e pense no que será exposto, quais protocolos serão usados ​​para interagir com o serviço, etc.
+
+É muito importante ocultar qualquer complexidade e detalhes de implementação do serviço e apenas expor o que é necessário para os clientes do serviço. Se detalhes desnecessários forem expostos, torna-se muito difícil mudar o serviço mais tarde, pois haverá muito trabalho para determinar quem está confiando nas várias partes do serviço. Além disso, muita flexibilidade é perdida em poder implantar o serviço de forma independente.
+
+O diagrama abaixo mostra um dos erros comuns no projeto de microsserviços:
+
+![Diagrama com erros](../assets/01-diagram.png)
+
+Como você pode ver no diagrama, aqui estamos pegando um serviço (Serviço 1) e armazenando todas as informações necessárias para o serviço em um banco de dados. Quando outro serviço (Serviço 2) é criado, o qual precisa dos mesmos dados, acessamos esses dados diretamente do banco de dados.
+
+Essa abordagem pode parecer razoável e lógica em certos casos - talvez seja fácil acessar dados em um banco de dados SQL ou gravar dados em um banco de dados SQL ou talvez as APIs necessárias ao Serviço 2 não estejam prontamente disponíveis.
+
+Assim que essa abordagem é adotada, o controle é imediatamente perdido para determinar o que está oculto e o que não está. Posteriormente, se o esquema precisar ser alterado, a flexibilidade para fazer essa alteração será perdida, já que você não saberá quem está usando o banco de dados e se a alteração interromperá o Serviço 2 ou não.
+
+Uma abordagem alternativa, e gostaria de apresentar o caminho certo para resolver isso, está abaixo:
+
+![Diagrama corrigido](../assets/01-diagram2.png)
+
+O Serviço 2 deve acessar o Serviço 1 e evitar ir diretamente ao banco de dados, preservando assim a máxima flexibilidade para várias alterações de esquema que possam ser necessárias. A preocupação com outras partes do sistema é eliminada desde que você tenha certeza de que os testes para as APIs expostas serão aprovados.
+
+Como mencionado, escolha cuidadosamente os protocolos para comunicação entre serviços. Por exemplo, se o Java RMI for escolhido, o usuário da API não apenas ficará restrito ao uso de uma linguagem baseada em JVM, mas, além disso, o protocolo é bastante frágil porque é difícil manter a compatibilidade com a API.
+
+<!-- 
+
+Por fim, ao fornecer bibliotecas clientes aos clientes para usar o serviço, pense com cuidado, porque é melhor evitar a repetição do código de integração. Se esse erro for cometido, ele também poderá restringir as alterações feitas na API se os clientes confiarem em detalhes desnecessários.
+
+-->
+
+### 4 - Descentralizar
+
+Existem organizações que obtiveram sucesso com microsserviços e seguiram um modelo em que as equipes que constroem os serviços cuidam de tudo relacionado a esse serviço. São eles que desenvolvem, implantam, mantêm e suportam. Não há equipes separadas de suporte ou manutenção.
+
+Outra maneira de conseguir o mesmo é ter um modelo interno de código aberto. Ao adotar essa abordagem, o desenvolvedor que precisa de mudanças em um serviço pode verificar o código, trabalhar em um recurso e enviar um *pool-request* em vez de esperar que o proprietário do serviço receba e trabalhe nas alterações necessárias.
+
+Para que este modelo funcione adequadamente, é necessária a documentação técnica adequada, juntamente com instruções de configuração e orientação para cada serviço, para facilitar a coleta e o trabalho do usuário.
+
+Outra vantagem oculta dessa abordagem é que ela mantém os desenvolvedores focados em escrever códigos de alta qualidade, pois eles sabem que os outros estarão olhando para ela.
+
+Existem também alguns padrões arquiteturais que podem ajudar a descentralizar as coisas. Por exemplo, você pode ter uma arquitetura em que a coleção de serviços estejam se comunicando por meio de um barramento de mensagens central.
+
+Esse barramento manipula o roteamento de mensagens de diferentes serviços. Agentes de mensagens como o RabbitMQ são um bom exemplo.
+
+![ESB](../assets/01-esb.png)
+
+O que tende a acontecer com o tempo é que as pessoas começam a colocar mais e mais lógica nesse barramento central e começa a saber mais e mais sobre o seu domínio. À medida que se torna mais inteligente, isso pode realmente se tornar um problema, pois torna-se difícil fazer mudanças que exigem coordenação entre equipes dedicadas separadas.
+
+Meu conselho geral para esses tipos de arquiteturas seria mantê-los relativamente "estúpidos" e deixá-los apenas lidar com o roteamento. Arquiteturas baseadas em eventos parecem funcionar bem nesses cenários.
+
+### 5 - Implantação (deploy)
+
+É importante escrever Contratos Direcionados ao Consumidor [^1] para qualquer API que esteja sendo dependente. Isso garante que novas alterações nessa API não interrompam sua API.
+
+[^1]: https://reflectoring.io/7-reasons-for-consumer-driven-contracts , https://spring.io/guides/gs/contract-rest
+
+Nos contratos orientados ao consumidor, cada API do consumidor captura suas expectativas do provedor em um contrato separado. Todos esses contratos são compartilhados com o fornecedor para que eles obtenham informações sobre as obrigações que devem cumprir para cada cliente individual.
+
+Os contratos orientados pelo consumidor devem passar por testes antes de serem implantados e antes que qualquer alteração seja feita na API. Também ajuda o provedor a saber quais serviços estão dependendo e como outros serviços dependem dele.
+
+Quando se trata de implantar microsserviços independentes, existem dois modelos comuns de implantação.
+
+#### Vários microsserviços por sistema operacional
+
+Primeiro, **vários microsserviços por sistema operacional** podem ser implantados. Com esse modelo, o tempo é salvo na automação de determinados itens, por exemplo, o host de cada serviço não precisa ser provisionado.
+
+A desvantagem dessa abordagem é que ela limita a capacidade de alterar e dimensionar os serviços de forma independente. Também cria dificuldades no gerenciamento de dependências. Por exemplo, todos os serviços no mesmo host terão que usar a mesma versão do Java se forem escritos em Java. Além disso, esses serviços independentes podem produzir efeitos colaterais indesejados para outros serviços em execução, o que pode ser um problema muito difícil de reproduzir e resolver.
+
+#### Um microsserviço por sistema operacional
+
+Devido ao desafio acima, o segundo modelo, no qual um microsserviço por sistema operacional é implantado, é a escolha preferida.
+
+Com esse modelo, o serviço é mais isolado e, portanto, é mais fácil gerenciar dependências e dimensionar serviços de forma independente. Mas você pode se perguntar "não é caro"? Bem, na verdade não.
+
+A solução tradicional para resolver esse problema é usar o Hypervisors, pelo qual várias máquinas virtuais são provisionadas no mesmo host. Essa abordagem de solução pode ser custosa, já que o próprio processo do hipervisor está consumindo alguns recursos e, é claro, quanto mais VMs forem provisionadas, mais recursos serão consumidos. E é aí que o modelo de contêiner recebe boa tração e é o preferido. O Docker é uma implementação desse modelo.
+
+### Fazendo alterações nas APIs de microsserviço existentes enquanto em produção
+
+Outro problema comum tipicamente enfrentado com um modelo de microsserviços é determinar como fazer alterações nas APIs de microsserviço existentes quando outras pessoas a estão usando em produção. Fazer alterações na API de microserviço pode quebrar o microsserviço que é dependente dele.
+
+Existem diferentes maneiras de resolver esse problema.
+
+Primeiro, versione a sua API e quando as alterações são necessárias para a API, implante a nova versão da API enquanto mantém a primeira versão atualizada. Os serviços dependentes podem ser atualizados em seu próprio ritmo para usar a versão mais recente. Depois que todos os serviços dependentes forem migrados para usar a nova versão do microsserviço alterado, ele poderá ser desativado.
+
+Um problema com esta abordagem é que se torna difícil manter as várias versões. Quaisquer novas alterações ou correções de erros devem ser feitas em ambas as versões.
+
+Por essa razão, uma abordagem alternativa pode ser considerada na qual outro *end-point*  é implementado no mesmo serviço quando as mudanças são necessárias. Depois que o novo *end-point* estiver sendo totalmente utilizado por todos os serviços, o *end-point* antigo poderá ser excluído.
+
+A vantagem dessa abordagem é que é mais fácil manter o serviço, pois sempre haverá apenas uma versão da API em execução.
+
+### 6 - Padrões
+
+Quando várias equipes cuidam de diferentes serviços de forma independente, é melhor introduzir alguns padrões e melhores práticas - tratamento de erros, por exemplo. Como seria de se esperar, os padrões e as melhores práticas não são fornecidos, cada serviço provavelmente lidaria com erros de maneira diferente e, sem dúvida, uma quantidade significativa de código desnecessário seria gravada.
+
+Criar padrões como o Guia de Estilo da API do PayPal é sempre útil em longo prazo. Também é importante informar aos outros o que uma API faz e a documentação da API sempre deve ser feita ao criá-la. Existem ferramentas como o Swagger, que são muito úteis para auxiliar no desenvolvimento em todo o ciclo de vida da API, desde o design e a documentação até o teste e a implantação. A capacidade de criar metadados para sua API e permitir que os usuários aproveitem, permite que eles saibam mais e usem-na com mais eficiência.
+
+### Dependências de serviços
+
+Em uma arquitetura de microsserviços, ao longo do tempo, cada serviço começa dependendo de mais e mais serviços. Isso pode introduzir mais problemas à medida que os serviços aumentam, por exemplo, o número de instâncias de serviço e seus locais (host + porta) podem mudar dinamicamente. Além disso, os protocolos e o formato em que os dados são compartilhados podem variar de serviço para serviço.
+
+É aqui que os Gateways de API e a Descoberta de serviços se tornam muito úteis. A implementação de um gateway de API se torna um ponto de entrada único para todos os clientes, e os gateways de API podem expor uma API diferente para cada cliente.
+
+O gateway de API também pode implementar segurança, como verificar se o cliente está autorizado a executar a solicitação. Existem algumas ferramentas como o Zookeeper, que podem ser usadas para a Descoberta de Serviço (embora não tenha sido construída para esse propósito). Existem muito mais ferramentas modernas, como o etcd e o Cônsul de Hashicorp, que tratam a Descoberta de Serviços como um cidadão de primeira classe e definitivamente vale a pena olhar para esse problema.
+
+### 7 - Falhas
+
+Um ponto importante a entender é que os microsserviços não são resilientes por padrão. Haverá falhas nos serviços. Falhas podem acontecer devido a falhas nos serviços dependentes. Além disso, as falhas podem surgir por vários motivos, como erros no código, tempos limite de rede, etc.
+
+O que é crítico em uma arquitetura de microsserviços é garantir que todo o sistema não seja afetado ou diminua quando houver erros em uma parte individual do sistema.
+
+Existem padrões como Bulkhead e Circuits Breaker, que podem ajudar você a obter uma melhor resiliência.
+
+#### Bulkhead (Anteparo)
+
+O padrão Bulkhead isola os elementos de um aplicativo em pools, de modo que, se um deles falhar, os outros continuarão a funcionar. O padrão é chamado Bulkhead porque se assemelha às partições seccionadas do casco de um navio. Se o casco de um navio estiver comprometido, apenas a seção danificada se enche de água, o que impede que o navio afunde.
+
+#### Circuit Breaker (Disjuntor)
+
+O padrão de disjuntor envolve uma chamada de função protegida em um objeto de disjuntor, que monitora falhas. Uma vez que uma falha atravessa o limite, o disjuntor desarma e todas as outras chamadas para o disjuntor retornam com um erro, sem que a chamada protegida seja feita para um determinado tempo limite configurado.
+
+Depois que o tempo limite expira, algumas chamadas são permitidas pelo disjuntor para passar e, se elas tiverem êxito, o disjuntor retomará um estado normal. Durante o período em que o disjuntor falhou, os usuários podem ser notificados de que uma determinada parte do sistema está quebrada e o restante do sistema ainda pode ser usado.
+
+Esteja ciente de que fornecer o nível necessário de resiliência para um aplicativo pode ser um desafio multidimensional.
+
+### 8 - Monitoramento e Logging
+
+Os microsserviços são distribuídos por natureza e o monitoramento e o registro de serviços individuais podem ser um desafio. É difícil passar e correlacionar logs de cada instância de serviço e descobrir erros individuais. Assim como nas aplicações monolíticas, não há um único local para monitorar microsserviços.
+
+#### Agregação de Log
+
+Para resolver esses problemas, uma abordagem preferencial é aproveitar um serviço de registro centralizado que agregue logs de cada instância de serviço. Os usuários podem pesquisar por esses registros a partir de um ponto centralizado e configurar alertas quando certas mensagens aparecerem.
+
+Ferramentas padrão estão disponíveis e amplamente utilizadas por várias empresas. O ELK Stack é a solução usada com mais freqüência, onde o daemon de registro, o Logstash , coleta e agrega logs que podem ser pesquisados ​​por meio de um painel do Kibana indexado pelo Elasticsearch.
+
+#### Agregação de Estatísticas
+
+Semelhante à agregação de logs, a agregação de estatísticas, como CPU e uso de memória, também pode ser aproveitada e armazenada centralmente. Ferramentas como o Graphite fazem um bom trabalho ao empurrar para um repositório central e armazená-lo de maneira eficiente.
+
+Quando um dos serviços downstream é incapaz de lidar com solicitações, deve haver uma maneira de acionar um alerta, e é aí que a implementação de APIs de verificação de integridade em cada serviço se torna importante - elas retornam informações sobre a integridade do sistema.
+
+Um cliente de verificação de integridade, que poderia ser um serviço de monitoramento ou um balanceador de carga, chama o nó de extremidade para verificar periodicamente a integridade da instância do serviço em um determinado intervalo de tempo. Mesmo que todos os serviços downstream sejam saudáveis, ainda pode haver um problema de comunicação downstream entre os serviços. Ferramentas como o projeto Hystrix da Netflix permitem a capacidade de identificar esses tipos de problemas.
+
+### Uma última coisa
+
+Agora que abordamos o que é uma arquitetura de microsserviços, e você deseja implantar uma arquitetura de microsserviços e está pensando sobre como começar, gostaria de oferecer um conselho final:
+
+> Comece pequeno
+
+Quando você estiver apenas começando a desenvolver microsserviços, comece modestamente com apenas um ou dois serviços, aprenda com eles e, com o tempo e a experiência, adicione mais.
 
 ## Desenvolvimento de Softwares
 
@@ -145,7 +350,7 @@ SOA envolve a implantação de serviços, que são unidades lógicas executadas 
 Um serviço tem as seguintes características:
 
 - Lida com um processo de negócios, como calcular uma cotação de seguro ou distribuir e-mail; lida com uma tarefa técnica, como acessar um banco de dados; ou fornece dados de negócios e detalhes técnicos para construir uma interface gráfica;
-- Pode acessar outro serviço. Com a tecnologia de *runtime* apropriada, ele pode acessar um programa tradicional e responder a diferentes tipos de solicitantes, como aplicações da Web;
+- Pode acessar outrox serviços. Com a tecnologia de *runtime* apropriada, ele pode acessar um programa tradicional e responder a diferentes tipos de solicitantes, como aplicações da Web;
 - É relativamente independente de outro software. As alterações feitas a um solicitante exigem poucas ou nenhuma alteração no serviço. Alterações na lógica interna de um serviço exigem poucas ou nenhuma alteração no solicitante. A independência relativa do serviço e outro software é chamada de **baixo acoplamento**;
 
 Um serviço pode lidar com interações dentro de sua empresa e entre sua empresa e seus fornecedores, parceiros e clientes.

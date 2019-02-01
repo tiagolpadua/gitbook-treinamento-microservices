@@ -9,6 +9,7 @@
     * [Incluindo um Recurso](part01-microsservicos/06-incluindo-um-recurso.md)
     * [Alterando Recursos](part01-microsservicos/07-alterando-recursos.md)
     * [Persistindo em um Banco de Dados](part01-microsservicos/08-persistindo.md)
+    * [Comunicação entre Microsserviços](part01-microsservicos/09-comunicacao.md)
 * [RabbitMQ](part02-rabbitmq/README.md)
     * [Principais Conceitos](part02-rabbitmq/01-conceitos.md)
     * [Cadastro de Livro Assíncrono](part02-rabbitmq/02-async-book.md)
@@ -31,7 +32,9 @@
     * [Integração contínua](part04-design/09-integracao.md)
 <!-- * [Microsserviços em Container Docker](part05-docker/README.md) -->
 * [Implantação e Monitoramento](part06-monitoramento/README.md)
-    * [Ferramental](part06-monitoramento/01-monitorando.md)
+    * [Monitoramento](part06-monitoramento/01-monitoramento.md)
+    * [Tolerância a Falhas](part06-monitoramento/02-falhas.md)
+    * [Testes](part06-monitoramento/03-testes.md)
 
 <!--
 

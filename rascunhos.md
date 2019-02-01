@@ -2,6 +2,8 @@
 
 https://www.companyweb.com.br/treinamento/metodologias-praticas/design-arquitetural-de-microservico/
 
+https://coderi.com.br/2016/04/14/microsservicos/
+
 https://dzone.com/articles/quick-guide-to-microservices-with-spring-boot-20-e
 
 https://pt.wikipedia.org/wiki/Lista_de_livros_mais_vendidos
@@ -33,3 +35,5 @@ Executando a partir da linha de comandos:
 - http://localhost:15672 -> RabbitMQ
 - http://localhost:6379 -> Redis (sem interface Web)
 - http://localhost:9090 -> Gateway
+
+Exclusão das avaliações após excluir um livro usando RabbitMQ
