@@ -52,7 +52,7 @@ Além do tipo de *exchange*, as *exchanges* são declaradas com um número de at
 
 As *exchanges* podem ser duradouras ou transitórias. As *exchanges* duráveis ​​sobrevivem ao reinício do *broker* enquanto as *exchange* transientes não (elas precisam ser redeclaradas quando o *broker* volta a ficar on-line). Nem todos os cenários e casos de uso exigem que as *exchanges* sejam duráveis.
 
-## *Exchange* Padrão
+## Exchange Padrão
 
 A *exchange* padrão é uma *exchange* direta sem nome (string vazia) pré-declarada pelo *broker*. Ela tem uma propriedade especial que a torna muito útil para aplicativos simples: cada fila criada é automaticamente vinculada a ela com uma chave de roteamento (*routing key*) que é igual ao nome da fila.
 

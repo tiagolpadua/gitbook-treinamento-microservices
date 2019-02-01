@@ -17,6 +17,8 @@ O RabbitMQ é um *message broker*: recebe e encaminha mensagens. Você pode pens
 
 A principal diferença entre o RabbitMQ e os correios é que ele não lida com papel, ao invés disso ele aceita, armazena e envia dados binários - mensagens.
 
+![](../assets/02-rabbit.png)
+
 <!--
 
 O *broker* é uma entidade que recebe mensagens de *publishers* - ou seja, clientes que produzem mensagens - e encaminha mensagens a *consumers*, que são clientes que recebem (consomem) mensagens. Assim, o AMQP é um protocolo bi-direcional onde um cliente pode enviar e receber mensagens de outros clientes através do broker.
