@@ -187,3 +187,30 @@ management.endpoints.web.exposure.include=*
 Em alguns casos, você pode querer falhar a inicialização de um serviço se não puder se conectar ao Config Server. Se esse for o comportamento desejado, defina a propriedade de configuração de inicialização como ```spring.cloud.config.fail-fast=true``` para fazer com que o cliente pare com uma Exceção.
 
 Com tudo configurado, nossa aplicação deve estar funcionando normalmente.
+
+
+## build info
+
+Um toque final que pode ser adicionado é a exposição das informações de build das aplicações através do Actuator, para isso, altere o `pom.xml` 
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+
+            <!-- Novidade aqui -->
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>build-info</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+```
+
+Agora construa e execute novamente o projeto, acessando a url `http://localhost:8080/actuator/info` devem estar disponíveis as informações de build.

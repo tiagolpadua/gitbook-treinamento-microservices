@@ -6,6 +6,8 @@ O projeto Spring AMQP aplica os principais conceitos do Spring ao desenvolviment
 
 O projeto consiste em duas partes; O spring-amqp é a abstração base e o spring-rabbit é a implementação do RabbitMQ.
 
+![](../assets/02-spring-amqp-robbitmq-1.png)
+
 ## Criando um cadastro de livro que "demora"
 
 Em nosso controller vamos adicionar um método que cadastra um livro mas que demora a responder:

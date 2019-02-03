@@ -359,3 +359,13 @@ public class LivrosController {
 	// Código atual omitido
 }
 ```
+
+## Console Web do H2
+
+O banco de dados H2 fornece um console baseado em navegador que o Spring Boot pode configurar automaticamente para você.
+
+Para acessá-lo, utilize o end-point `/h2-console`, os parâmetro de conexão são os seguintes:
+
+- JDBC URL: `jdbc:h2:mem:testdb`
+- User Name: `sa`
+- Password: ``
