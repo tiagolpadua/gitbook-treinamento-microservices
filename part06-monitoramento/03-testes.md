@@ -152,6 +152,586 @@ See support classes for the TestContext framework.
 
 -->
 
+## Preparando nosso projeto para testes unitários
+
+Primeiramente, vamos adequear nosso projeto, criando uma classe de serviços 
+
+**LivrosController**
+```java
+package com.acme.livroservice;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/livros")
+public class LivrosController {
+
+	Logger logger = LoggerFactory.getLogger(LivrosController.class);
+
+	private final RabbitTemplate rabbitTemplate;
+	
+	private final LivroService livroService;
+
+	LivrosController(RabbitTemplate rabbitTemplate, LivroService livroService) {
+		this.rabbitTemplate = rabbitTemplate;
+		this.livroService = livroService;
+	}
+
+	@GetMapping
+	public List<Livro> getLivros(@RequestParam("autor") Optional<String> autor,
+			@RequestParam("titulo") Optional<String> titulo) {
+		logger.info(
+				"getLivros - autor: " + autor.orElse("Não informado") + " titulo: " + titulo.orElse("Não informado"));
+
+		return livroService.getLivros(autor, titulo);
+	}
+
+	@GetMapping("/{id}")
+	@Cacheable(value = "livros", key = "#id")
+	public Livro getLivroPorId(@PathVariable Long id) {
+		logger.info("getLivroPorId: " + id);
+		return livroService.getLivroPorId(id);
+	}
+
+	@PostMapping
+	@ResponseStatus(HttpStatus.CREATED)
+	public Livro adicionarLivro(@RequestBody Livro livro) {
+		logger.info("adicionarLivro: " + livro);
+		return livroService.adicionarLivro(livro);
+	}
+
+	@PostMapping("/demorado")
+	@ResponseStatus(HttpStatus.CREATED)
+	public Livro adicionarLivroDemorado(@RequestBody Livro livro) throws InterruptedException {
+		logger.info("adicionarLivroDemorado iniciou: " + livro);
+		TimeUnit.SECONDS.sleep(3);
+		Livro livroSalvo = livroService.adicionarLivro(livro);
+		logger.info("adicionarLivroDemorado terminou: " + livroSalvo);
+		return livroSalvo;
+	}
+
+	@PostMapping("/assincrono")
+	@ResponseStatus(HttpStatus.CREATED)
+	public void adicionarLivroAssincrono(@RequestBody Livro livro) throws InterruptedException {
+		logger.info("adicionarLivroAssincrono iniciou: " + livro);
+		rabbitTemplate.convertAndSend(LivroServiceApplication.TOPIC_EXCHANGE_NAME, LivroServiceApplication.ROUTING_KEY,
+				livro);
+	}
+
+	@PutMapping("/{id}")
+	@CachePut(value = "livros", key = "#livro.id")
+	public Livro atualizarLivro(@RequestBody Livro livro, @PathVariable Long id) {
+		logger.info("atualizarLivro: " + livro + " id: " + id);
+		return livroService.atualizarLivro(livro, id);
+	}
+
+	@DeleteMapping("/{id}")
+	@CacheEvict(value = "livros", allEntries = true)
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void excluirLivro(@PathVariable Long id) {
+		logger.info("excluirLivro: " + id);
+		livroService.excluirLivro(id);
+	}
+}
+```
+
+**LivroService**
+```java
+package com.acme.livroservice;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.server.ResponseStatusException;
+
+@Service
+public class LivroService {
+	Logger logger = LoggerFactory.getLogger(LivroService.class);
+
+	private final LivroRepository repository;
+	
+	private final AvaliacaoService avaliacaoService;
+
+	LivroService(LivroRepository repository, AvaliacaoService avaliacaoService) {
+		this.repository = repository;
+		this.avaliacaoService = avaliacaoService;
+	}
+
+	public List<Livro> getLivros(Optional<String> autor, Optional<String> titulo) {
+		logger.info("getLivros - autor: " + autor.orElse("Não informado") + " titulo: " + titulo.orElse("Não informado"));
+
+		if (autor.isPresent()) {
+			return repository.findAll(LivroRepository.autorContem(autor.get()));
+		} else if (titulo.isPresent()) {
+			return repository.findAll(LivroRepository.tituloContem(titulo.get()));
+		} else if (autor.isPresent() && titulo.isPresent()) {
+			return repository.findAll(Specification.where(LivroRepository.autorContem(autor.get()))
+					.and(LivroRepository.tituloContem(titulo.get())));
+		} else {
+			return repository.findAll();
+		}
+	}
+
+	public Livro getLivroPorId(Long id) {
+		logger.info("getLivroPorId: " + id);
+		return repository.findById(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Livro não encontrado: " + id));
+	}
+
+	public Livro adicionarLivro(@RequestBody Livro livro) {
+		logger.info("adicionarLivro: " + livro);
+		return repository.save(livro);
+	}
+
+	public Livro atualizarLivro(Livro livro, Long id) {
+		logger.info("atualizarLivro: " + livro + " id: " + id);
+		return repository.findById(id).map(livroSalvo -> {
+			livroSalvo.setAutor(livro.getAutor());
+			livroSalvo.setTitulo(livro.getTitulo());
+			livroSalvo.setPreco(livro.getPreco());
+			return repository.save(livroSalvo);
+		}).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Livro não encontrado: " + id));
+	}
+
+	public void excluirLivro(Long livroId) {
+		logger.info("excluirLivro: " + livroId);
+		
+		try {
+			this.avaliacaoService.apagarAvaliacoesPorLivroId(livroId);
+			logger.info("Avaliações vinculadas excluídas com sucesso");
+		} catch (ResourceAccessException | HttpClientErrorException ex) {
+			logger.error("Ocorreu um erro na comunicação com o serviço de avaliações", ex);
+			throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+					"Ocorreu um erro não esperado na comunicação com o serviço de livros: " + ex.getMessage());
+		}
+
+		repository.deleteById(livroId);
+	}
+}
+```
+
+**AvaliacaoService**
+```java
+package com.acme.livroservice;
+
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+@Service
+public class AvaliacaoService {
+	
+	private final RestTemplate restTemplate;
+	
+	public AvaliacaoService(RestTemplateBuilder restTemplateBuilder) {
+		restTemplate = restTemplateBuilder.build();
+	}
+	
+	public void apagarAvaliacoesPorLivroId(Long livroId) {
+		String avaliacaoResourceUrl = "http://localhost:8081/avaliacoes/livro/";
+		restTemplate.delete(avaliacaoResourceUrl + livroId);
+	}
+}
+```
+
+Outra alteração importante é implementar um método `equals` na classe `Livro`:
+
+```java
+@Override
+public boolean equals(Object obj) {
+    if (this == obj)
+        return true;
+    if (obj == null)
+        return false;
+    if (getClass() != obj.getClass())
+        return false;
+    Livro other = (Livro) obj;
+    if (autor == null) {
+        if (other.autor != null)
+            return false;
+    } else if (!autor.equals(other.autor))
+        return false;
+    if (id == null) {
+        if (other.id != null)
+            return false;
+    } else if (!id.equals(other.id))
+        return false;
+    if (preco == null) {
+        if (other.preco != null)
+            return false;
+    } else if (!preco.equals(other.preco))
+        return false;
+    if (titulo == null) {
+        if (other.titulo != null)
+            return false;
+    } else if (!titulo.equals(other.titulo))
+        return false;
+    return true;
+}
+```
+
+<!-- 
+
+## Introdução ao JUnit
+
+-->
+
+## Testes Unitários com Spring Boot
+
+O boot Spring oferece uma ótima classe para facilitar o teste: anotação `@SpringBootTest`.
+
+Esta anotação pode ser especificada em uma classe de teste que executa testes baseados no Spring Boot.
+Fornece os seguintes recursos além do Spring TestContext Framework regular:
+
+- Usa `SpringBootContextLoader` como o `ContextLoader` padrão quando nenhum `@ContextConfiguration(loader=...)` específico é definido;
+- Procura automaticamente por um `@SpringBootConfiguration` quando `@Configuration` aninhado não é usado, e nenhuma classe explícita é especificada;
+- Permite que propriedades de ambiente personalizadas sejam definidas usando o atributo properties;
+- Fornece suporte para diferentes modos de ambiente da Web, incluindo a capacidade de iniciar um servidor da Web totalmente em execução, ouvindo em uma porta definida ou aleatória;
+- Registra um bean `TestRestTemplate` e/ou `WebTestClient` para uso em testes da web que estão usando um servidor da Web totalmente em execução;
+
+O primeiro passo é nos certificarmos que a dependência `spring-boot-starter-test` está presente no `pom.xml` de nosso projeto.
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-test</artifactId>
+    <scope>test</scope>
+</dependency>
+```
+
+Nós basicamente temos dois componentes para testar aqui: `LivroService` e `LivrosController`.
+
+### Testes Unitários de `LivroService`
+
+**LivroServiceUnitTest**
+
+```java
+package com.acme.livroservice;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit4.SpringRunner;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class LivroServiceUnitTest {
+	@Autowired
+	private LivroService livroService;
+
+	@MockBean
+	private LivroRepository repository;
+	
+	@MockBean
+	private AvaliacaoService avaliacaoService;
+
+	public void criaListaLivrosVazia() {
+		when(repository.findAll()).thenReturn(new ArrayList<Livro>());
+	}
+
+	public void criaListaLivrosDefault() {
+		List<Livro> livros = new ArrayList<Livro>();
+		livros.add(new Livro(1L, "Miguel de Cervantes", "Don Quixote", 144.0));
+		livros.add(new Livro(2L, "J. R. R. Tolkien", "O Senhor dos Anéis", 123.0));
+		livros.add(new Livro(3L, "Antoine de Saint-Exupéry", "O Pequeno Príncipe", 152.0));
+		livros.add(new Livro(4L, "Charles Dickens", "Um Conto de Duas Cidades", 35.0));
+
+		when(repository.findAll()).thenReturn(livros);
+	}
+
+	@Test
+	public void getLivrosVazio() {
+		criaListaLivrosVazia();
+		List<Livro> livros = livroService.getLivros(Optional.empty(), Optional.empty());
+		assertThat(livros).isEmpty();
+	}
+
+	@Test
+	public void getLivrosComLivros() {
+		criaListaLivrosDefault();
+		List<Livro> livros = livroService.getLivros(Optional.empty(), Optional.empty());
+		assertThat(livros.size()).isEqualTo(4);
+	}
+
+	@Test
+	public void getLivroPorId() {
+		when(repository.findById(1L))
+				.thenReturn(Optional.of(new Livro(1L, "Miguel de Cervantes", "Don Quixote", 144.0)));
+		Livro livro = livroService.getLivroPorId(1L);
+		assertThat(livro).isEqualTo(new Livro(1L, "Miguel de Cervantes", "Don Quixote", 144.0));
+	}
+
+	@Test
+	public void adicionarLivro() {
+		when(repository.save(new Livro("Miguel de Cervantes", "Don Quixote", 144.0)))
+				.thenReturn(new Livro(1L, "Miguel de Cervantes", "Don Quixote", 144.0));
+		Livro livro = livroService.adicionarLivro(new Livro("Miguel de Cervantes", "Don Quixote", 144.0));
+		assertThat(livro).isEqualTo(new Livro(1L, "Miguel de Cervantes", "Don Quixote", 144.0));
+	}
+
+	@Test
+	public void atualizarLivro() {
+		when(repository.findById(1L))
+				.thenReturn(Optional.of(new Livro(1L, "Miguel de Cervantes", "Don Quixote", 144.0)));
+		when(repository.save(new Livro(1L, "Foo Bar", "Don Quixote", 144.0)))
+				.thenReturn(new Livro(1L, "Foo Bar", "Don Quixote", 144.0));
+		Livro livro = livroService.atualizarLivro(new Livro(1L, "Foo Bar", "Don Quixote", 144.0), 1L);
+		assertThat(livro).isEqualTo(new Livro(1L, "Foo Bar", "Don Quixote", 144.0));
+	}
+
+	// É correto testar o funcionamento interno da função?
+	@Test
+	public void excluirLivro() {
+		livroService.excluirLivro(1L);
+		verify(avaliacaoService, times(1)).apagarAvaliacoesPorLivroId(1L);
+		verify(repository, times(1)).deleteById(1L);
+	}
+}
+```
+
+### Testes Unitários de `LivrosController`
+
+**LivrosControllerUnitTest**
+
+```java
+package com.acme.livroservice;
+
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class LivrosControllerUnitTest {
+
+	MockMvc mockMvc;
+
+	@Autowired
+	private LivrosController livrosController;
+
+	@MockBean
+	private RabbitTemplate rabbitTemplate;
+
+	@MockBean
+	private LivroService livroService;
+
+	private List<Livro> livros;
+
+	@Before
+	public void setup() throws Exception {
+		this.mockMvc = standaloneSetup(this.livrosController).build();
+
+		livros = new ArrayList<Livro>();
+		livros.add(new Livro(1L, "Miguel de Cervantes", "Don Quixote", 144.0));
+		livros.add(new Livro(2L, "J. R. R. Tolkien", "O Senhor dos Anéis", 123.0));
+		livros.add(new Livro(3L, "Antoine de Saint-Exupéry", "O Pequeno Príncipe", 152.0));
+		livros.add(new Livro(4L, "Charles Dickens", "Um Conto de Duas Cidades", 35.0));
+	}
+
+	@Test
+	public void getLivros() throws Exception {
+		when(livroService.getLivros(Optional.empty(), Optional.empty())).thenReturn(livros);
+		mockMvc.perform(get("/livros").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].titulo", is("Don Quixote")))
+				.andExpect(jsonPath("$[1].titulo", is("O Senhor dos Anéis")))
+				.andExpect(jsonPath("$[2].titulo", is("O Pequeno Príncipe")))
+				.andExpect(jsonPath("$[3].titulo", is("Um Conto de Duas Cidades")));
+	}
+
+	@Test
+	public void getLivro() throws Exception {
+		when(livroService.getLivroPorId(1L)).thenReturn(new Livro(1L, "Miguel de Cervantes", "Don Quixote", 144.0));
+		mockMvc.perform(get("/livros/1").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.titulo", is("Don Quixote")));
+	}
+
+	@Test
+	public void adicionarLivro() throws Exception {
+		when(livroService.adicionarLivro(new Livro("Miguel de Cervantes", "Don Quixote", 144.0)))
+				.thenReturn(new Livro(1L, "Miguel de Cervantes", "Don Quixote", 144.0));
+		mockMvc.perform(post("/livros").contentType(MediaType.APPLICATION_JSON)
+				.content(asJsonString(new Livro("Miguel de Cervantes", "Don Quixote", 144.0)))
+				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isCreated())
+				.andExpect(jsonPath("$.titulo", is("Don Quixote")));
+	}
+
+	public static String asJsonString(final Object obj) {
+		try {
+			final ObjectMapper mapper = new ObjectMapper();
+			final String jsonContent = mapper.writeValueAsString(obj);
+			return jsonContent;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@Test
+	public void atualizarLivro() throws Exception {
+		when(livroService.atualizarLivro(new Livro(1L, "Foo Bar", "Don Quixote", 144.0), 1L))
+				.thenReturn(new Livro(1L, "Foo Bar", "Don Quixote", 144.0));
+		mockMvc.perform(put("/livros/1").contentType(MediaType.APPLICATION_JSON)
+				.content(asJsonString(new Livro(1L, "Foo Bar", "Don Quixote", 144.0)))
+				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.autor", is("Foo Bar")));
+	}
+	
+	@Test
+	public void excluirLivro() throws Exception {
+		mockMvc.perform(delete("/livros/1")).andExpect(status().isNoContent());
+	}
+}
+```
+
+## Testes de Integração com Spring Boot
+
+Para os testes de integração, queremos verificar nossos principais componentes com a comunicação downstream.
+
+### Testes Unitários de `LivroService`
+
+Este teste é muito simples. Não precisamos mocar nada.
+
+**LivroServiceIntegrationTest**
+
+```java
+package com.acme.livroservice;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class LivroServiceIntegrationTest {
+	@Autowired
+	private LivroService livroService;
+
+	@Test
+	public void getLivros() {
+		List<Livro> livros = livroService.getLivros(Optional.empty(), Optional.empty());
+		assertThat(livros).isNotEmpty();
+	}
+}
+```
+
+### Testes Unitários de `LivrosController`
+
+**LivrosControllerIntegrationTest**
+
+```java
+package com.acme.livroservice;
+
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class LivrosControllerIntegrationTest {
+
+	MockMvc mockMvc;
+
+	@Autowired
+	private LivrosController livrosController;
+
+	@Before
+	public void setup() throws Exception {
+		this.mockMvc = standaloneSetup(this.livrosController).build();
+	}
+
+	@Test
+	public void getLivros() throws Exception {
+		mockMvc.perform(get("/livros").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].titulo", is("Don Quixote")))
+				.andExpect(jsonPath("$[1].titulo", is("O Senhor dos Anéis")))
+				.andExpect(jsonPath("$[2].titulo", is("O Pequeno Príncipe")))
+				.andExpect(jsonPath("$[3].titulo", is("Um Conto de Duas Cidades")));
+	}
+
+}
+```
+
 ## Fontes
 - http://blog.caelum.com.br/unidade-integracao-ou-sistema-qual-teste-fazer/
 - https://www.baeldung.com/spring-boot-testing
+- https://dzone.com/articles/unit-and-integration-tests-in-spring-boot-2
+- https://thepracticaldeveloper.com/2017/07/31/guide-spring-boot-controller-tests/
