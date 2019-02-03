@@ -6,7 +6,7 @@ Nosso microsserviço já é capaz de listar os livros e buscar um livro a partir
 
 Mas antes permitir a inclusão de novos livros, podemos fazer uma melhoria em nosso código, você já deve ter percebido que a URL base do controller irá se repetir em todos os métodos e, para evitar a repetição de código e facilitar a manutenção, podemos centralizar esta configuração:
 
-- ```src/main/java/com/acme/livroservice/LivrosController.java```
+- `src/main/java/com/acme/livroservice/LivrosController.java`
 
 ```java
 package com.acme.livroservice;
@@ -50,9 +50,9 @@ public void adicionarLivro(Livro livro) {
 
 Mas o problema é definir a URL para a qual o recurso será mapeado, pois requisições do tipo GET http://localhost:8080/livros e POST http://localhost:8080/livros devem ser mapeadas para funções diferentes.
 
-Para resolver isso, devemos alterar as anotações ```RequestMapping``` para anotações mais específicas como ```GetMapping``` e ```PostMapping```.
+Para resolver isso, devemos alterar as anotações `RequestMapping` para anotações mais específicas como `GetMapping` e `PostMapping`.
 
-- ```src/main/java/com/acme/livroservice/LivrosController.java```
+- `src/main/java/com/acme/livroservice/LivrosController.java`
 
 ```java
 package com.acme.livroservice;
@@ -110,9 +110,9 @@ Qualquer uma destar ferramentas permite a execução de requisições HTTP arbit
 
 ## Enviando dados para o End-Point
 
-Utilizanto a anotação ```@RequestBody``` podemos anotar um parâmetro da função do controller que será preenchido com os dados da requisição.
+Utilizanto a anotação `@RequestBody` podemos anotar um parâmetro da função do controller que será preenchido com os dados da requisição.
 
-- ```src/main/java/com/acme/livroservice/LivrosController.java```
+- `src/main/java/com/acme/livroservice/LivrosController.java`
 
 ```java
 package com.acme.livroservice;
@@ -151,13 +151,13 @@ public class LivrosController {
 }
 ```
 
-Mas como poderemos enviar os dados do livro? É aí que entra novamente o auxílio do RESTClient. Vamos realizar uma nova requisição contra o end-point http://localhost:8080/livros utilizando o método http POST, mas agora, iremos enviar os dados do livro a ser cadastrado no corpo da requisição como um JSON, não podemos nos esquecer também de incluir um cabeçalho na requisição com ```Content-Type: application/json```:
+Mas como poderemos enviar os dados do livro? É aí que entra novamente o auxílio do RESTClient. Vamos realizar uma nova requisição contra o end-point http://localhost:8080/livros utilizando o método http POST, mas agora, iremos enviar os dados do livro a ser cadastrado no corpo da requisição como um JSON, não podemos nos esquecer também de incluir um cabeçalho na requisição com `Content-Type: application/json`:
 
 ![](../assets/06-post.jpg)
 
 Vamos também ajustar nosso controler para que imprima no console os dados recebidos do livro:
 
-- ```src/main/java/com/acme/livroservice/LivrosController.java```
+- `src/main/java/com/acme/livroservice/LivrosController.java`
 
 ```java
 // Código atual omitido
@@ -181,9 +181,9 @@ Ao efetuarmos a chamada POST utilizando o RESTClient devemos ver algo como a lin
 Livro [id=5, autor=Umberto Eco, titulo=O Nome da Rosa, preco=27.0]
 ```
 
-Para que o livro possa de fato ser incluído na listagem, devemos encontrar um ID válido para ele e inserir o novo livro em ```listaLivros```, faremos isso agora:
+Para que o livro possa de fato ser incluído na listagem, devemos encontrar um ID válido para ele e inserir o novo livro em `listaLivros`, faremos isso agora:
 
-- ```src/main/java/com/acme/livroservice/LivrosController.java```
+- `src/main/java/com/acme/livroservice/LivrosController.java`
 
 ```java
 // Código atual omitido
@@ -208,7 +208,7 @@ Faça alguns testes incluindo mais livros, não é necessário invormar o campo 
 
 Mas ainda temos espaço para melhorar, pois na realidade, a resposta adequada a um método POST de inclusão bem sucedido é 201, e, ele deve retornar a entidade que acabou de ser incluída:
 
-- ```src/main/java/com/acme/livroservice/LivrosController.java```
+- `src/main/java/com/acme/livroservice/LivrosController.java`
 
 ```java
 // Código atual omitido
@@ -241,7 +241,7 @@ Neste momento não validaremos as entidades, isso será feito nos próximos cap�
 
 <!-- https://www.baeldung.com/spring-boot-logging -->
 
-Deixar códigos do tipo ```System.out.println``` espalhados em nosso projeto não é uma boa prática de programação, no entanto, as informações obtidas são muito importantes, tanto durante a fase de desenvolvimento da aplicação quanto no momento de operação para identificarmos eventuais erros que podem estar ocorrendo.
+Deixar códigos do tipo `System.out.println` espalhados em nosso projeto não é uma boa prática de programação, no entanto, as informações obtidas são muito importantes, tanto durante a fase de desenvolvimento da aplicação quanto no momento de operação para identificarmos eventuais erros que podem estar ocorrendo.
 
 Neste ponto, o Spring Boot é um framework muito útil pois nos permite esquecer a maioria das definições de configuração, muitas das quais ele autonomiza com propriedade.
 
@@ -257,7 +257,7 @@ Para ativá-los sem alterar a configuração, podemos passar os argumentos –de
 java -jar target/spring-boot-logging-0.0.1-SNAPSHOT.jar --trace
 ```
 
-O Spring Boot também nos dá acesso a uma configuração de nível de log mais refinada por meio de variáveis de ambiente que podem ser configuradas no arquivo ```application.properties```:
+O Spring Boot também nos dá acesso a uma configuração de nível de log mais refinada por meio de variáveis de ambiente que podem ser configuradas no arquivo `application.properties`:
 
 ```
 logging.level.root=WARN
@@ -289,7 +289,7 @@ public class LoggingController {
 
 Agora que já sabemos como exibir corretamente as mensagens de log usando o Spring Boot, vamos ajustar nosso controller com mensagens de log adequadas:
 
-- ```src/main/java/com/acme/livroservice/LivrosController.java```
+- `src/main/java/com/acme/livroservice/LivrosController.java`
 
 ```java
 // Código atual omitido
@@ -344,5 +344,4 @@ public class LivrosController {
 		return livro;
 	}
 }
-
 ```

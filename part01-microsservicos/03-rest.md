@@ -63,11 +63,11 @@ DELETE /enderecos/1
 ## Códigos de status HTTP
 Códigos de status indicam o resultado da solicitação HTTP.
 
-- ***1XX*** - informativo
-- ***2XX*** - sucesso
-- ***3XX*** - redirecionamento
-- ***4XX*** - erro do cliente
-- ***5XX*** - erro do servidor
+- **1XX** - informativo
+- **2XX** - sucesso
+- **3XX** - redirecionamento
+- **4XX** - erro do cliente
+- **5XX** - erro do servidor
 
 ## Media types (Tipos de mídia)
 

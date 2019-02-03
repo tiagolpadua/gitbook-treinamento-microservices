@@ -6,7 +6,7 @@ Agora que já temos uma base sólida, podemos começar a criar outras funcionali
 
 Criaremos um serviço que irá aceitar um request HTTP GET para:
 
-```http://localhost:8080/livros/:id```
+`http://localhost:8080/livros/:id`
 
 E responder com a representação JSON como a seguir:
 
@@ -23,7 +23,7 @@ E responder com a representação JSON como a seguir:
 
 Inicialmente vamos apenas incluir um novo método na classe:
 
-- ```src/main/java/com/acme/livroservice/LivrosController.java```
+- `src/main/java/com/acme/livroservice/LivrosController.java`
 
 ```java
 package com.acme.livroservice;
@@ -55,7 +55,7 @@ public class LivrosController {
 }
 ```
 
-Vamos fazer o ```System.out.println("id: " + id)``` somente para conferir se realmente o parâmetro está sendo capturado.
+Vamos fazer o `System.out.println("id: " + id)` somente para conferir se realmente o parâmetro está sendo capturado.
 
 Com isso, acessando no navegador o endereço http://localhost:8080/livros/1 obtemos o seguinte JSON:
 
@@ -77,23 +77,23 @@ Precisamos deixar uma mesma lista de livros disponível para todos os métodos. 
 O escopo de um bean define o ciclo de vida e a visibilidade desse bean nos contextos nos quais ele é usado.
 
 O Spring define seis tipos de escopos:
-- ***singleton***: Definir um bean com escopo ***singleton*** significa que o contêiner cria uma única instância desse bean, e todas as solicitações para esse nome de bean retornarão o mesmo objeto, que é armazenado em cache. Quaisquer modificações no objeto serão refletidas em todas as referências ao bean. Este escopo é o valor padrão se nenhum outro escopo for especificado;
-- ***prototype***: Um bean com escopo de ***prototype*** retornará uma instância diferente toda vez que for solicitado do contêiner;
-- ***request***: O escopo de ***request*** cria uma instância de bean para uma única solicitação HTTP;
-- ***session***: O escopo de ***session*** é criado para uma sessão HTTP;
-- ***application***: O escopo de ***application*** cria a instância do bean para o ciclo de vida de um ```ServletContext```. Isso é semelhante ao escopo singleton, mas há uma diferença muito importante em relação ao escopo do bean. Quando beans tem escopo ***application***, a mesma instância do bean é compartilhada entre vários aplicativos baseados em servlet em execução no mesmo ```ServletContext```, enquanto os beans com escopo singleton para um único contexto de aplicativo;
-- ***websocket***: Os beans do escopo do ```WebSocket``` quando acessados pela primeira vez são armazenados nos atributos da sessão do ```WebSocket```. A mesma instância do bean é então retornada sempre que esse bean é acessado durante toda a sessão do ```WebSocket```. Também podemos dizer que exibe comportamento singleton, mas limitado a uma sessão ```WebSocket``` apenas. 
+- **singleton**: Definir um bean com escopo **singleton** significa que o contêiner cria uma única instância desse bean, e todas as solicitações para esse nome de bean retornarão o mesmo objeto, que é armazenado em cache. Quaisquer modificações no objeto serão refletidas em todas as referências ao bean. Este escopo é o valor padrão se nenhum outro escopo for especificado;
+- **prototype**: Um bean com escopo de **prototype** retornará uma instância diferente toda vez que for solicitado do contêiner;
+- **request**: O escopo de **request** cria uma instância de bean para uma única solicitação HTTP;
+- **session**: O escopo de **session** é criado para uma sessão HTTP;
+- **application**: O escopo de **application** cria a instância do bean para o ciclo de vida de um `ServletContext`. Isso é semelhante ao escopo singleton, mas há uma diferença muito importante em relação ao escopo do bean. Quando beans tem escopo **application**, a mesma instância do bean é compartilhada entre vários aplicativos baseados em servlet em execução no mesmo `ServletContext`, enquanto os beans com escopo singleton para um único contexto de aplicativo;
+- **websocket**: Os beans do escopo do `WebSocket` quando acessados pela primeira vez são armazenados nos atributos da sessão do `WebSocket`. A mesma instância do bean é então retornada sempre que esse bean é acessado durante toda a sessão do `WebSocket`. Também podemos dizer que exibe comportamento singleton, mas limitado a uma sessão `WebSocket` apenas. 
 
 Os últimos quatro escopos mencionados request, session, application e websocket estão disponíveis apenas para aplicativos web.
 
 
-## Tornando a lista de livros um ```Singleton```
+## Tornando a lista de livros um `Singleton`
 
-Agora que já entendemos como funcionam os escopos no Spring, podemos tornar nossa lista de livros um ***singleton*** para que possa ser compartilhada em nosso microsserviço.
+Agora que já entendemos como funcionam os escopos no Spring, podemos tornar nossa lista de livros um **singleton** para que possa ser compartilhada em nosso microsserviço.
 
-Primeiramente devemos criar um método ***fábrica*** que será responsável pela criação do bean quando ele for requisitado. Podemos colocar este método diretamente na classe ```LivroServiceApplication```:
+Primeiramente devemos criar um método **fábrica** que será responsável pela criação do bean quando ele for requisitado. Podemos colocar este método diretamente na classe `LivroServiceApplication`:
 
-- ```src/main/java/com/acme/livroservice/LivroServiceApplication.java```
+- `src/main/java/com/acme/livroservice/LivroServiceApplication.java`
 
 ```java
 package com.acme.livroservice;
@@ -133,9 +133,9 @@ public class LivroServiceApplication {
 }
 ```
 
-Agora vamos ajustar nosso ```controller``` para que utilize este bean:
+Agora vamos ajustar nosso `controller` para que utilize este bean:
 
-- ```src/main/java/com/acme/livroservice/LivrosController.java```
+- `src/main/java/com/acme/livroservice/LivrosController.java`
 
 ```java
 package com.acme.livroservice;
@@ -174,12 +174,12 @@ Muito bom! Teste agora no navegador e veja que já é possível pesquisar um liv
 
 O Spring fornece algumas maneiras principais de retornar códigos de status personalizados de suas classes do Controller:
 
-- Usando um ```ResponseEntity```;
-- Usando a anotação ```@ResponseStatus``` em classes de exceção;
+- Usando um `ResponseEntity`;
+- Usando a anotação `@ResponseStatus` em classes de exceção;
 
 Essas opções não são mutuamente exclusivas; longe disso, eles podem realmente complementar uma a outra.
 
-### Retornando códigos de status por meio de um ```ResponseEntity```
+### Retornando códigos de status por meio de um `ResponseEntity`
 
 ```java
 @RequestMapping(value = "/controller", method = RequestMethod.GET)
@@ -201,14 +201,14 @@ public ResponseEntity sendViaException() {
 }
 ```
 
-Ao receber uma requisição GET para ```/exception```, o Spring lançará uma ```ForbiddenException```. Esta é uma exceção personalizada que definiremos em uma classe separada:
+Ao receber uma requisição GET para `/exception`, o Spring lançará uma `ForbiddenException`. Esta é uma exceção personalizada que definiremos em uma classe separada:
 
 ```java
 @ResponseStatus(HttpStatus.FORBIDDEN)
 public class ForbiddenException extends RuntimeException {}
 ```
 
-Nenhum código é necessário nesta exceção. Todo o trabalho é feito pela anotação ```@ResponseStatus```.
+Nenhum código é necessário nesta exceção. Todo o trabalho é feito pela anotação `@ResponseStatus`.
 
 Neste caso, quando a exceção é lançada, o controlador que a lançou retorna uma resposta com o código de resposta 403 (Forbidden). Se necessário, você também pode adicionar uma mensagem na anotação que será retornada junto com a resposta.
 
@@ -221,11 +221,11 @@ public class ForbiddenException extends RuntimeException {}
 
 É importante observar que, embora seja tecnicamente possível fazer uma exceção retornar qualquer código de status, na maioria dos casos, faz sentido usar exceções para códigos de erro (4XX e 5XX).
 
-### ```ResponseStatusException```
+### `ResponseStatusException`
 
-```ResponseStatusException``` é uma alternativa programática ao ```@ResponseStatus``` e é a classe base para exceções usadas para aplicar um código de status a uma resposta HTTP. É uma ```RuntimeException``` e, portanto, não precisa ser explicitamente adicionada a uma assinatura de método.
+`ResponseStatusException` é uma alternativa programática ao `@ResponseStatus` e é a classe base para exceções usadas para aplicar um código de status a uma resposta HTTP. É uma `RuntimeException` e, portanto, não precisa ser explicitamente adicionada a uma assinatura de método.
 
-Spring fornece 3 construtores para gerar ```ResponseStatusException```:
+Spring fornece 3 construtores para gerar `ResponseStatusException`:
 
 ```java
 ResponseStatusException(HttpStatus status)
@@ -237,17 +237,17 @@ ResponseStatusException(
 )
 ```
 
-Argumentos do construtor de ```ResponseStatusException```:
+Argumentos do construtor de `ResponseStatusException`:
 
 - status - um status HTTP definido para resposta HTTP
 - reason - uma mensagem explicando a exceção definida como resposta HTTP
-- cause - uma causa ```Throwable``` do ```ResponseStatusException```
+- cause - uma causa `Throwable` do `ResponseStatusException`
 
-Nota: no Spring, o ```HandlerExceptionResolver``` intercepta e processa qualquer exceção gerada e não tratada por um Controller.
+Nota: no Spring, o `HandlerExceptionResolver` intercepta e processa qualquer exceção gerada e não tratada por um Controller.
 
-Um desses manipuladores, ```ResponseStatusExceptionResolver```, procura por qualquer ```ResponseStatusException``` ou exceções não identificadas anotadas por ```@ResponseStatus``` e, em seguida, extrai o código e a razão HTTP Status e as inclui na resposta HTTP.
+Um desses manipuladores, `ResponseStatusExceptionResolver`, procura por qualquer `ResponseStatusException` ou exceções não identificadas anotadas por `@ResponseStatus` e, em seguida, extrai o código e a razão HTTP Status e as inclui na resposta HTTP.
 
-O uso de ```ResponseStatusException``` tem alguns benefícios:
+O uso de `ResponseStatusException` tem alguns benefícios:
 
 - Em primeiro lugar, exceções do mesmo tipo podem ser processadas separadamente e diferentes códigos de status podem ser definidos na resposta, reduzindo o acoplamento;
 - Em segundo lugar, evita a criação de classes de exceção adicionais desnecessárias;
@@ -255,9 +255,9 @@ O uso de ```ResponseStatusException``` tem alguns benefícios:
 
 ## Alterando nosso end-point para retornar o código de erro 404 caso o livro não seja encontrado
 
-Agora que já sabemos como retornar um código de erro, vamos ajustar nosso ```controller``` para que lance a exceção caso o livro não seja encontrado:
+Agora que já sabemos como retornar um código de erro, vamos ajustar nosso `controller` para que lance a exceção caso o livro não seja encontrado:
 
-- ```src/main/java/com/acme/livroservice/LivrosController.java```
+- `src/main/java/com/acme/livroservice/LivrosController.java`
 
 ```java
 package com.acme.livroservice;

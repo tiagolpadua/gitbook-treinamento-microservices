@@ -8,11 +8,7 @@ Começaremos criando o esqueleto e nosso primeiro microsserviço, o microsservi�
 
 Fazer o download do arquivo gerado
 
-Extrair em:
-
-```
-C:\MSC-DevKit\workspace-spring-tool-suite-4-4.1.0.RELEASE
-```
+Extrair em: `C:\MSC-DevKit\workspace-spring-tool-suite-4-4.1.0.RELEASE`
 
 Importar o projeto:
 
@@ -58,7 +54,7 @@ Agora poderemos acessar novamente http://localhost:8080 e ver a página que cria
 
 Run as -> Maven Install
 
-Via ```cmd``` iniciar o jar com o comando ```java -jar```:
+Via `cmd` iniciar o jar com o comando `java -jar target\livro-service-0.0.1-SNAPSHOT.jar`:
 
 ![](../assets/02-java-jar.jpg)
 
@@ -66,7 +62,7 @@ Via ```cmd``` iniciar o jar com o comando ```java -jar```:
 
 Você pode executar o aplicativo a partir da linha de comando com Gradle ou Maven. Ou você pode criar um único arquivo JAR executável que contém todas as dependências, classes e recursos necessários e executá-lo. Isso facilita o envio, a versão e a implantação do serviço como um aplicativo durante todo o ciclo de vida de desenvolvimento, em diferentes ambientes e assim por diante.
 
-Se você estiver usando o Maven, poderá executar o aplicativo usando ```./mvnw spring-boot:run```. Ou você pode construir o arquivo JAR com o pacote ```./mvnw clean```.
+Se você estiver usando o Maven, poderá executar o aplicativo usando `./mvnw spring-boot:run`. Ou você pode construir o arquivo JAR com o pacote `./mvnw clean`.
 
 O procedimento irá criar um JAR executável. Você também pode optar por criar um arquivo WAR clássico.
 
@@ -74,7 +70,7 @@ A saída de log é exibida. O serviço deve ficar funcional dentro de alguns seg
 
 ## Entendendo o projeto base
 
-- ```pom.xml```
+- `pom.xml`
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -131,10 +127,10 @@ A saída de log é exibida. O serviço deve ficar funcional dentro de alguns seg
 
 O plugin Spring Boot Maven fornece muitos recursos convenientes:
 - Ele coleta todos os jars classpath e cria um jar único e executável, o que torna mais conveniente executar e transportar seu serviço;
-- Ele procura o método ```public static void main()``` para sinalizar como uma classe executável;
+- Ele procura o método `public static void main()` para sinalizar como uma classe executável;
 - Ele fornece um resolvedor de dependência integrado que define o número da versão para corresponder às dependências do Spring Boot. Você pode substituir qualquer versão que desejar, mas será o padrão para o conjunto de versões escolhido do Boot;
 
-- ```src/main/java/com/acme/livroservice/LivroServiceApplication.java```
+- `src/main/java/com/acme/livroservice/LivroServiceApplication.java`
 
 ```java
 package com.acme.livroservice;
@@ -155,13 +151,13 @@ public class LivroServiceApplication {
 }
 ```
 
-```@SpringBootApplication``` é uma anotação de conveniência que inclui todos os itens a seguir:
-- ```@Configuration``` marca a classe como uma fonte de definições de bean para o contexto do aplicativo;
-- ```@EnableAutoConfiguration``` informa ao Spring Boot para começar a adicionar beans com base nas configurações do caminho de classe, outros beans e várias configurações de propriedade;
-- Normalmente você adicionaria o ```@EnableWebMvc``` para um aplicativo Spring MVC, mas o Spring Boot o adiciona automaticamente quando vê o ***spring-webmvc*** no classpath. Isso sinaliza o aplicativo como um aplicativo da Web e ativa comportamentos-chave, como a configuração de um ```DispatcherServlet```.
-- O ```@ComponentScan``` diz ao Spring para procurar outros componentes, configurações e serviços no pacote livroservice, permitindo que ele encontre os controladores;
+`@SpringBootApplication` é uma anotação de conveniência que inclui todos os itens a seguir:
+- `@Configuration` marca a classe como uma fonte de definições de bean para o contexto do aplicativo;
+- `@EnableAutoConfiguration` informa ao Spring Boot para começar a adicionar beans com base nas configurações do caminho de classe, outros beans e várias configurações de propriedade;
+- Normalmente você adicionaria o `@EnableWebMvc` para um aplicativo Spring MVC, mas o Spring Boot o adiciona automaticamente quando vê o **spring-webmvc** no classpath. Isso sinaliza o aplicativo como um aplicativo da Web e ativa comportamentos-chave, como a configuração de um `DispatcherServlet`.
+- O `@ComponentScan` diz ao Spring para procurar outros componentes, configurações e serviços no pacote livroservice, permitindo que ele encontre os controladores;
 
-O método ```main()``` usa o método ```SpringApplication.run()``` do Spring Boot para iniciar um aplicativo. Você percebeu que não havia uma única linha de XML? Nenhum arquivo ***web.xml*** também. Este aplicativo da web é 100% puro e você não precisa lidar com a configuração de qualquer canal ou infraestrutura.
+O método `main()` usa o método `SpringApplication.run()` do Spring Boot para iniciar um aplicativo. Você percebeu que não havia uma única linha de XML? Nenhum arquivo **web.xml** também. Este aplicativo da web é 100% puro e você não precisa lidar com a configuração de qualquer canal ou infraestrutura.
 
 ## Saiba o que você pode fazer com o Spring Boot
 
