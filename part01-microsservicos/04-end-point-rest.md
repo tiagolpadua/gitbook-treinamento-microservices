@@ -12,9 +12,7 @@ Criaremos um serviço que irá aceitar um request HTTP GET para:
 http://localhost:8080/livros
 ```
 
-
 E responder com a representação JSON a seguir:
-
 
 ```json
 [

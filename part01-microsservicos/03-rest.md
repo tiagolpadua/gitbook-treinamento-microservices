@@ -3,6 +3,7 @@
 REST (Representational State Transfer) foi introduzido em 2000 por Roy Fielding em sua tese de doutorado. REST é um estilo arquitetural para projetar sistemas distribuídos. Não é um padrão, mas um conjunto de restrições, como ser sem estado, ter uma relação cliente/servidor e uma interface uniforme. O REST não está estritamente relacionado ao HTTP, mas é mais comumente associado a ele.
 
 ## Princípios do REST
+
 - **Recursos** expõem URIs de estrutura de diretórios facilmente compreendidos;
 - As **representações** transferem JSON ou XML para representar objetos e atributos de dados;
 - **Mensagens** usam métodos HTTP explicitamente (por exemplo, GET, POST, PUT e DELETE);
