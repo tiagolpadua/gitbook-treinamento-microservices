@@ -114,7 +114,7 @@ package com.acme.livroservice;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
@@ -125,10 +125,10 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class LivroServiceApplication {
 
-	static final String TOPIC_EXCHANGE_NAME = "livro-service-exchange";
-	static final String QUEUE_NAME = "livro-service-queue";
+	static final String DIRECT_EXCHANGE_NAME = "livro-service-direct-exchange";
 	static final String MATRICULA = "NNNNNNNN";
-	static final String ROUTING_KEY = "livro-service.cadastrar." + MATRICULA;
+	static final String QUEUE_NAME = "livros_queue_" + MATRICULA;	
+	static final String ROUTING_KEY = "livro.cadastrar." + MATRICULA;
 	
     @Bean
     public Queue queue() {
@@ -136,12 +136,12 @@ public class LivroServiceApplication {
     }
 
     @Bean
-    public TopicExchange exchange() {
-        return new TopicExchange(TOPIC_EXCHANGE_NAME);
+    public DirectExchange exchange() {
+        return new DirectExchange(DIRECT_EXCHANGE_NAME);
     }
 
     @Bean
-    public Binding binding(Queue queue, TopicExchange exchange) {
+    public Binding binding(Queue queue, DirectExchange exchange) {
         return BindingBuilder.bind(queue).to(exchange).with(ROUTING_KEY);
     }
 
@@ -154,7 +154,6 @@ public class LivroServiceApplication {
         container.setMessageListener(listenerAdapter);
         return container;
     }
-    
 
     @Bean
     MessageListenerAdapter listenerAdapter(Receiver receiver) {
@@ -171,7 +170,7 @@ O bean definido no método ```listenerAdapter()``` é registrado como um listene
 
 O método ```queue()``` cria uma fila AMQP. O método ```exchange()``` cria uma *exchange* de tópicos. O método ```binding()``` associa estes dois, definindo o comportamento que ocorre quando o RabbitTemplate publica em uma *exchange*.
 
-O Spring AMQP requer que o Queue, o TopicExchange e o Binding sejam declarados como beans Spring de nível superior para serem configurados corretamente.
+O Spring AMQP requer que o Queue, o DirectExchange e o Binding sejam declarados como beans Spring de nível superior para serem configurados corretamente.
 
 Nesse caso, usamos uma *exchange* de tópicos e a fila é vinculada à chave de roteamento "livro-service.cadastrar.NNNNNN" (onde NNNNNN é a matrícula do usuário).  Que significa qualquer mensagem enviada com uma chave de roteamento "livro-service.cadastrar.NNNNNN" será encaminhado para a fila.
 
@@ -229,7 +228,7 @@ public class LivrosController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public void adicionarLivroAssincrono(@RequestBody Livro livro) throws InterruptedException {
 		logger.info("adicionarLivroAssincrono iniciou: " + livro);
-		rabbitTemplate.convertAndSend(LivroServiceApplication.TOPIC_EXCHANGE_NAME, LivroServiceApplication.ROUTING_KEY, livro.toString());
+		rabbitTemplate.convertAndSend(LivroServiceApplication.DIRECT_EXCHANGE_NAME, LivroServiceApplication.ROUTING_KEY, livro.toString());
         logger.info("adicionarLivroAssincrono terminou");
 	}
 	
@@ -294,7 +293,7 @@ public class LivrosController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public void adicionarLivroAssincrono(@RequestBody Livro livro) throws InterruptedException {
 		logger.info("adicionarLivroAssincrono iniciou: " + livro);
-		rabbitTemplate.convertAndSend(LivroServiceApplication.TOPIC_EXCHANGE_NAME, LivroServiceApplication.ROUTING_KEY, livro);
+		rabbitTemplate.convertAndSend(LivroServiceApplication.DIRECT_EXCHANGE_NAME, LivroServiceApplication.ROUTING_KEY, livro);
 	}
 }
 ```
@@ -406,3 +405,4 @@ Perceba que o conteúdo do ```Body``` é um JSON e ```contentType``` agora é ``
 - https://spring.io/projects/spring-amqp
 - https://spring.io/guides/gs/messaging-rabbitmq/
 - https://thepracticaldeveloper.com/2016/10/23/produce-and-consume-json-messages-with-spring-boot-amqp/
+- https://springbootdev.com/2017/09/15/spring-boot-and-rabbitmq-direct-exchange-example-messaging-custom-java-objects-and-consumes-with-a-listener/
