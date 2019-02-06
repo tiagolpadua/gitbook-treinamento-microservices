@@ -14,7 +14,7 @@ Em nosso controller vamos adicionar um método que cadastra um livro mas que dem
 
 Agora vamos ajustar o controller de fato:
 
-- ```src/main/java/com/acme/livroservice/LivrosController.java```
+- `src/main/java/com/acme/livroservice/LivrosController.java`
 
 ```java
 // Código atual omitido
@@ -47,11 +47,11 @@ Utilizando o RESTClient do Firefox, veja se realmente o livro está sendo salvo 
 
 Vamos imaginar que temos um problema que é o tempo de processamento do salvamento dos livros está demorando, para resolver isso, podemos fazer com que nossa aplicação, ao receber a solicitação de cadastramento de um livro, envie esta solicitação para uma fila e responda imediatamente ao solicitante. A fila será processada na medida da disponibilidade dos recursos. Utilizaremos o RabbitMQ para esta funcionalidade.
 
-## Adicionando Dependências ao ```pom.xml``` de Nossa Aplicação
+## Adicionando Dependências ao `pom.xml` de Nossa Aplicação
 
-Vamos incluir as depenências ```spring-boot-starter-amqp``` em nosso ```pom.xml```:
+Vamos incluir as depenências `spring-boot-starter-amqp` em nosso `pom.xml`:
 
-- ```pom.xml```
+- `pom.xml`
 
 ```xml
   <!-- Código anterior omitido -->
@@ -67,11 +67,186 @@ Vamos incluir as depenências ```spring-boot-starter-amqp``` em nosso ```pom.xml
   <!-- Código posterior omitido -->
 ```
 
+Agora vamos criar algumas constantes que nos auxiliarão no restante do processo:
+
+```java
+package com.acme.livroservice;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class LivroServiceApplication {
+
+    // Novidades aqui
+	static final String MATRICULA = "NNNNNNNN";
+	static final String LIVRO_DIRECT_EXCHANGE_NAME = "livro-direct-exchange-" + MATRICULA;
+	static final String CADASTRAR_LIVRO_QUEUE_NAME = "cadastrar_livro_queue_" + MATRICULA;	
+	static final String CADASTRAR_LIVRO_ROUTING_KEY = "livro.cadastrar." + MATRICULA;
+	
+	public static void main(String[] args) {
+		SpringApplication.run(LivroServiceApplication.class, args);
+	}
+}
+```
+
 ## Crie um receptor de mensagem RabbitMQ
 
 Com qualquer aplicativo baseado em mensagens, você precisa criar um receptor que responda às mensagens publicadas.
 
-- ```src/main/java/com/acme/livroservice/Receiver.java```
+- `src/main/java/com/acme/livroservice/Receiver.java`
+
+```java
+package com.acme.livroservice;
+
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.stereotype.Component;
+
+@Component
+public class Receiver {
+	Logger logger = LoggerFactory.getLogger(Receiver.class);
+
+	@RabbitListener(queues = LivroServiceApplication.CADASTRAR_LIVRO_QUEUE_NAME)
+	public void receiveMessageCadastrarLivro(String message) throws InterruptedException {
+		logger.info("Recebeu <" + message + ">");
+	}
+}
+```
+
+O **Receiver** é um POJO simples que define um método para receber mensagens. Poderia ser utilizado qualquer outro nome desejado. **@RabbitListener** é uma anotação utilizada para mapear mensagens destinadas a determinada fila.
+
+## Enviando as mensagens
+
+Agora, ajustaremos nosso controller para que envie as mensagens ao *broker*:
+
+- `src/main/java/com/acme/livroservice/LivrosController.java`
+
+```java
+package com.acme.livroservice;
+
+// Novidade aqui
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+
+// Código atual omitido
+
+@RestController
+@RequestMapping("/livros")
+public class LivrosController {
+
+	Logger logger = LoggerFactory.getLogger(LivrosController.class);
+
+	private final LivroRepository repository;
+	
+    // Novidade aqui
+	private final RabbitTemplate rabbitTemplate;
+
+    // Novidade aqui
+	LivrosController(LivroRepository repository, RabbitTemplate rabbitTemplate) {
+		this.repository = repository;
+		this.rabbitTemplate = rabbitTemplate;
+	}
+
+    // Código atual omitido
+	
+    // Novidade aqui
+	@PostMapping("/assincrono")
+	@ResponseStatus(HttpStatus.CREATED)
+	public void adicionarLivroAssincrono(@RequestBody Livro livro) throws InterruptedException {
+		logger.info("adicionarLivroAssincrono iniciou: " + livro);
+		rabbitTemplate.convertAndSend(LivroServiceApplication.LIVRO_DIRECT_EXCHANGE_NAME, LivroServiceApplication.CADASTRAR_LIVRO_ROUTING_KEY, livro.toString());
+        logger.info("adicionarLivroAssincrono terminou");
+	}
+}
+```
+
+## Configurando o endereço do broker
+
+A configuração do endereço do broker é feita no arquivo `application.properties`, deixaremos o log com nível `DEBUG` para que possamos ver as mensagens que estão sendo enviadas.
+
+**/src/main/resources/application.properties**
+
+```
+logging.level.org.springframework.amqp=DEBUG
+spring.rabbitmq.host=[IP-DO-HOST]
+```
+
+## Criando as Exchanges, Queues e Bindings
+
+O próximo passo é realizar a criação das Exchanges, Queues e Bindings via interface de administração do RabbitMQ: http://[IP-DO-HOST]:15672
+
+- Crie uma Direct Exchange com o nome: `livro-direct-exchange-NNNNNNNN`
+- Crie uma Queue com o nome: `livro_queue_NNNNNNNN`
+- Crie um Binding entre a exchange e a queue com o valor: `livro.cadastrar.NNNNNNNN`
+
+(substitua NNNNNNNN pela sua matrícula)
+
+## Testando o envio de mensagens
+
+Ótimo, agora já é possível ver as mensagens sendo enviadas e processadas por nossa aplicação.
+
+```
+2019-02-05 22:34:49.390  INFO 19352 --- [nio-8080-exec-2] com.acme.livroservice.LivrosController   : adicionarLivroAssincrono iniciou: Livro [id=null, autor=string, titulo=string, preco=0.0]
+2019-02-05 22:34:49.391 DEBUG 19352 --- [nio-8080-exec-2] o.s.amqp.rabbit.core.RabbitTemplate      : Executing callback RabbitTemplate$$Lambda$907/0x000000080086cc40 on RabbitMQ Channel: Cached Rabbit Channel: AMQChannel(amqp://guest@127.0.0.1:5672/,2), conn: Proxy@587878da Shared Rabbit Connection: SimpleConnection@199a59d7 [delegate=amqp://guest@127.0.0.1:5672/, localPort= 56092]
+2019-02-05 22:34:49.391 DEBUG 19352 --- [nio-8080-exec-2] o.s.amqp.rabbit.core.RabbitTemplate      : Publishing message (Body:'Livro [id=null, autor=string, titulo=string, preco=0.0]' MessageProperties [headers={}, contentType=text/plain, contentEncoding=UTF-8, contentLength=55, deliveryMode=PERSISTENT, priority=0, deliveryTag=0])on exchange [cadastrar_livro_queue_NNNNNNNN], routingKey = [livro.cadastrar.NNNNNNNN]
+2019-02-05 22:34:49.391  INFO 19352 --- [nio-8080-exec-2] com.acme.livroservice.LivrosController   : adicionarLivroAssincrono terminou
+2019-02-05 22:34:49.405 DEBUG 19352 --- [pool-3-thread-5] o.s.a.r.listener.BlockingQueueConsumer   : Storing delivery for consumerTag: 'amq.ctag-0Sunur9xyt4x5ovgRsD5Qg' with deliveryTag: '2' in Consumer@50dd38ea: tags=[[amq.ctag-0Sunur9xyt4x5ovgRsD5Qg]], channel=Cached Rabbit Channel: AMQChannel(amqp://guest@127.0.0.1:5672/,1), conn: Proxy@587878da Shared Rabbit Connection: SimpleConnection@199a59d7 [delegate=amqp://guest@127.0.0.1:5672/, localPort= 56092], acknowledgeMode=AUTO local queue size=0
+2019-02-05 22:34:49.406 DEBUG 19352 --- [cTaskExecutor-1] o.s.a.r.listener.BlockingQueueConsumer   : Received message: (Body:'Livro [id=null, autor=string, titulo=string, preco=0.0]' MessageProperties [headers={}, contentType=text/plain, contentEncoding=UTF-8, contentLength=0, receivedDeliveryMode=PERSISTENT, priority=0, redelivered=false, receivedExchange=cadastrar_livro_queue_NNNNNNNN, receivedRoutingKey=livro.cadastrar.NNNNNNNN, deliveryTag=2, consumerTag=amq.ctag-0Sunur9xyt4x5ovgRsD5Qg, consumerQueue=cadastrar_livro_queue_NNNNNNNN])
+2019-02-05 22:34:49.406 DEBUG 19352 --- [cTaskExecutor-1] .a.r.l.a.MessagingMessageListenerAdapter : Processing [GenericMessage [payload=Livro [id=null, autor=string, titulo=string, preco=0.0], headers={amqp_receivedDeliveryMode=PERSISTENT, amqp_receivedRoutingKey=livro.cadastrar.NNNNNNNN, amqp_contentEncoding=UTF-8, amqp_receivedExchange=cadastrar_livro_queue_NNNNNNNN, amqp_deliveryTag=2, amqp_consumerQueue=cadastrar_livro_queue_NNNNNNNN, amqp_redelivered=false, id=1f7b0044-9de5-3537-4ce3-69a3ca5bba9d, amqp_consumerTag=amq.ctag-0Sunur9xyt4x5ovgRsD5Qg, contentType=text/plain, timestamp=1549413289406}]]
+2019-02-05 22:34:49.406  INFO 19352 --- [cTaskExecutor-1] com.acme.livroservice.LivrosController   : Recebeu <Livro [id=null, autor=string, titulo=string, preco=0.0]>
+2019-02-05 22:34:52.406  INFO 19352 --- [cTaskExecutor-1] com.acme.livroservice.LivrosController   : Processou <Livro [id=null, autor=string, titulo=string, preco=0.0]>
+```
+
+## Envio de objetos na mensagem
+
+Um payload de uma mensagem é um array de bytes, deste modo, podemos enviar representações serializadas do objeto e recebê-las para facilitar o processamento, vamos fazer uma alteração e permitir que o objeto "Livro" seja enviado serializado na mensagem.
+
+O primeiro passo é tornar o Livro um objeto serializável:
+
+- `/src/main/java/com/acme/livroservice/Livro.java`
+
+```java
+package com.acme.livroservice;
+
+import java.io.Serializable;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
+@Entity
+// Novidade aqui
+public class Livro implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+    // Código atual omitido
+}
+```
+
+Vamos ajustar em seguida a classe `LivrosController` para que faça o envio de uma instância do próprio Livro e não sua representação textual:
+
+- `src/main/java/com/acme/livroservice/LivrosController.java`
+
+```java
+// Código atual omitido
+public class LivrosController {
+
+    // Código atual omitido
+    @PostMapping("/assincrono")
+	@ResponseStatus(HttpStatus.CREATED)
+	public void adicionarLivroAssincrono(@RequestBody Livro livro) throws InterruptedException {
+		logger.info("adicionarLivroAssincrono iniciou: " + livro);
+		rabbitTemplate.convertAndSend(LivroServiceApplication.LIVRO_DIRECT_EXCHANGE_NAME, LivroServiceApplication.CADASTRAR_LIVRO_ROUTING_KEY, livro);
+	}
+}
+```
+
+O `Receiver` também deve ser ajustado, e agora já poderá fazer a persistência do objeto recebido:
+
+- `src/main/java/com/acme/livroservice/Receiver.java`
 
 ```java
 package com.acme.livroservice;
@@ -84,40 +259,45 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class Receiver {
-	Logger logger = LoggerFactory.getLogger(LivrosController.class);
 
-    public void receiveMessage(String message) throws InterruptedException {
-    	logger.info("Recebeu <" + message + ">");
-         TimeUnit.SECONDS.sleep(3);
-         logger.info("Processou <" + message + ">");
-    }
+	Logger logger = LoggerFactory.getLogger(Receiver.class);
+
+	private final LivroRepository repository;
+
+	Receiver(LivroRepository repository) {
+		this.repository = repository;
+	}
+
+	public void receiveMessage(Livro livro) throws InterruptedException {
+		logger.info("Recebeu <" + livro.toString() + ">");
+		TimeUnit.SECONDS.sleep(3);
+		repository.save(livro);
+		logger.info("Processou <" + livro.toString() + ">");
+	}
 }
 ```
 
-O ```Receiver``` é um POJO simples que define um método para receber mensagens. Poderia ser utilizado qualquer outro nome desejado.
+Se consultar o log, verá que agora o conteúdo enviado é bem diferente, em especial o **contentType=application/x-java-serialized-object**:
 
-## Registre o listener e envie uma mensagem
+```
+2019-02-05 22:48:10.227 DEBUG 18832 --- [nio-8080-exec-9] o.s.amqp.rabbit.core.RabbitTemplate      : Publishing message (Body:'[B@74824f3b(byte[243])' MessageProperties [headers={}, contentType=application/x-java-serialized-object, contentLength=243, deliveryMode=PERSISTENT, priority=0, deliveryTag=0])on exchange [cadastrar_livro_queue_NNNNNNNN], routingKey = [livro.cadastrar.NNNNNNNN]
+```
 
-O RabbitTemplate do Spring AMQP fornece tudo o que você precisa para enviar e receber mensagens com o RabbitMQ. Especificamente, você precisa configurar:
+Conseguimos enviar o objeto ao *broker*, recebê-lo em seguida e fazer sua persistência no banco. Porém estamos trafegando dados binários, o que dificulta a integração de nossa aplicação com outras tecnologias (talvez um serviço *NodeJS* poderia enviar o livro para persistência).
 
-- Um contêiner do listener de mensagens;
-- Declarar a fila, a *exchange* e o *binding* entre eles;
+Para evitar este problema, iremos alterar novamente o projeto para que o Livro seja enviado no formato JSON.
 
-O Spring Boot cria automaticamente um *connection factory* e um RabbitTemplate, reduzindo a quantidade de código que você precisa escrever.
-Você usará o RabbitTemplate para enviar mensagens e registrará um Receiver com o contêiner do listener de mensagens para receber mensagens. O connection factory aciona ambos, permitindo que eles se conectem ao servidor RabbitMQ.
+Em `LivroServiceApplication` devemos incluir os métodos **producerJackson2MessageConverter** e **rabbitTemplate**:
 
-- ```src/main/java/com/acme/livroservice/LivroServiceApplication.java```
+**src/main/java/com/acme/livroservice/LivroServiceApplication.java**
 
 ```java
 package com.acme.livroservice;
 
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
-import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -125,62 +305,58 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class LivroServiceApplication {
 
-	static final String DIRECT_EXCHANGE_NAME = "livro-service-direct-exchange";
 	static final String MATRICULA = "NNNNNNNN";
-	static final String QUEUE_NAME = "livros_queue_" + MATRICULA;	
-	static final String ROUTING_KEY = "livro.cadastrar." + MATRICULA;
-	
-    @Bean
-    public Queue queue() {
-        return new Queue(QUEUE_NAME, false);
-    }
+	static final String LIVRO_DIRECT_EXCHANGE_NAME = "livro-direct-exchange-" + MATRICULA;
+	static final String CADASTRAR_LIVRO_QUEUE_NAME = "cadastrar_livro_queue_" + MATRICULA;
+	static final String CADASTRAR_LIVRO_ROUTING_KEY = "livro.cadastrar." + MATRICULA;
 
-    @Bean
-    public DirectExchange exchange() {
-        return new DirectExchange(DIRECT_EXCHANGE_NAME);
-    }
+	@Bean
+	public RabbitTemplate rabbitTemplate(final ConnectionFactory connectionFactory,
+			MessageConverter producerJackson2MessageConverter) {
+		final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+		rabbitTemplate.setMessageConverter(producerJackson2MessageConverter);
+		return rabbitTemplate;
+	}
 
-    @Bean
-    public Binding binding(Queue queue, DirectExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(ROUTING_KEY);
-    }
+	@Bean
+	public Jackson2JsonMessageConverter producerJackson2MessageConverter() {
+		return new Jackson2JsonMessageConverter();
+	}
 
-    @Bean
-    public SimpleMessageListenerContainer container(ConnectionFactory connectionFactory,
-            MessageListenerAdapter listenerAdapter) {
-        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-        container.setConnectionFactory(connectionFactory);
-        container.setQueueNames(QUEUE_NAME);
-        container.setMessageListener(listenerAdapter);
-        return container;
-    }
-
-    @Bean
-    MessageListenerAdapter listenerAdapter(Receiver receiver) {
-        return new MessageListenerAdapter(receiver, "receiveMessage");
-    }
-    
 	public static void main(String[] args) {
 		SpringApplication.run(LivroServiceApplication.class, args);
 	}
 }
 ```
 
-O bean definido no método ```listenerAdapter()``` é registrado como um listener de mensagens no contêiner definido em ```container()```. Ele escutará as mensagens na fila "livro-service-queue". Como a classe Receiver é um POJO, ela precisa ser agrupada no MessageListenerAdapter, em que você especifica que invoque receiveMessage.
+Tudo deve continuar funcionando como antes, porém, ao incluirmos um livro, a saída do log deve conter algo como **contentType=application/json**:
 
-O método ```queue()``` cria uma fila AMQP. O método ```exchange()``` cria uma *exchange* de tópicos. O método ```binding()``` associa estes dois, definindo o comportamento que ocorre quando o RabbitTemplate publica em uma *exchange*.
+```
+2019-02-05 22:51:17.948 DEBUG 23344 --- [nio-8080-exec-1] o.s.amqp.rabbit.core.RabbitTemplate      : Publishing message (Body:'{"id":null,"autor":"string","titulo":"string","preco":0.0}' MessageProperties [headers={__TypeId__=com.acme.livroservice.Livro}, contentType=application/json, contentEncoding=UTF-8, contentLength=58, deliveryMode=PERSISTENT, priority=0, deliveryTag=0])on exchange [cadastrar_livro_queue_NNNNNNNN], routingKey = [livro.cadastrar.NNNNNNNN]
+```
 
-O Spring AMQP requer que o Queue, o DirectExchange e o Binding sejam declarados como beans Spring de nível superior para serem configurados corretamente.
+Perceba que o conteúdo do `Body` é um JSON e `contentType` agora é `application/json`.
 
-Nesse caso, usamos uma *exchange* de tópicos e a fila é vinculada à chave de roteamento "livro-service.cadastrar.NNNNNN" (onde NNNNNN é a matrícula do usuário).  Que significa qualquer mensagem enviada com uma chave de roteamento "livro-service.cadastrar.NNNNNN" será encaminhado para a fila.
+## Distribuindo a carga de trabalho
 
-## Enviando as mensagens
+Levante mais duas instâncias do microsserviço em portas distintas e faça novamente a solicitação de cadastro de livro assíncrono, perceba que o trabalho é distribuído entre as instâncias:
 
-Agora, ajustaremos nosso controller para que envie as mensagens ao *broker*:
+```
+$ java -jar livro-service-0.0.1-SNAPSHOT.jar --server.port=7081
+$ java -jar livro-service-0.0.1-SNAPSHOT.jar --server.port=7082
+```
 
-- ```src/main/java/com/acme/livroservice/LivrosController.java```
+## Excluindo livros de forma assíncrona
 
-```java
+Faça o mesmo agora para a funcionalidade de exclusão de livros, para isso, crie um end-point de exclusão de livros assíncrono, uma queue, um binding e um novo método no receiver.
+
+## Excluindo avaliações de um livro de forma assíncrona
+
+Já que estamos excluindo os livros de forma assíncrona, seria interessante também realizar a exclusão das avaliações relacionadas a este livro de forma assíncrona.
+
+<!--
+LivrosController
+
 package com.acme.livroservice;
 
 import java.util.List;
@@ -211,109 +387,145 @@ public class LivrosController {
 	Logger logger = LoggerFactory.getLogger(LivrosController.class);
 
 	private final LivroRepository repository;
-	
-    // Novidade aqui
 	private final RabbitTemplate rabbitTemplate;
 
-    // Novidade aqui
 	LivrosController(LivroRepository repository, RabbitTemplate rabbitTemplate) {
 		this.repository = repository;
 		this.rabbitTemplate = rabbitTemplate;
 	}
 
-    // Código atual omitido
+	@GetMapping
+	public List<Livro> getLivros(@RequestParam("autor") Optional<String> autor,
+			@RequestParam("titulo") Optional<String> titulo) {
+		logger.info(
+				"getLivros - autor: " + autor.orElse("Não informado") + " titulo: " + titulo.orElse("Não informado"));
+
+		if (autor.isPresent()) {
+			return repository.findAll(LivroRepository.autorContem(autor.get()));
+		} else if (titulo.isPresent()) {
+			return repository.findAll(LivroRepository.tituloContem(titulo.get()));
+		} else if (autor.isPresent() && titulo.isPresent()) {
+			return repository.findAll(
+					Specification.where(LivroRepository.autorContem(autor.get())).and(LivroRepository.tituloContem(titulo.get())));
+		} else {
+			return repository.findAll();			
+		}
+	}
+
+	@GetMapping("/{id}")
+	public Livro getLivroPorId(@PathVariable Long id) {
+		logger.info("getLivroPorId: " + id);
+		return repository.findById(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Livro não encontrado: " + id));
+	}
+
+	@PostMapping
+	@ResponseStatus(HttpStatus.CREATED)
+	public Livro adicionarLivro(@RequestBody Livro livro) {
+		logger.info("adicionarLivro: " + livro);
+		return repository.save(livro);
+	}
 	
-    // Novidade aqui
+	@PostMapping("/demorado")
+	@ResponseStatus(HttpStatus.CREATED)
+	public Livro adicionarLivroDemorado(@RequestBody Livro livro) throws InterruptedException {
+		logger.info("adicionarLivroDemorado iniciou: " + livro);
+		TimeUnit.SECONDS.sleep(3);
+		Livro livroSalvo = repository.save(livro);
+		logger.info("adicionarLivroDemorado terminou: " + livroSalvo);
+		return livroSalvo;
+	}
+	
 	@PostMapping("/assincrono")
 	@ResponseStatus(HttpStatus.CREATED)
 	public void adicionarLivroAssincrono(@RequestBody Livro livro) throws InterruptedException {
 		logger.info("adicionarLivroAssincrono iniciou: " + livro);
-		rabbitTemplate.convertAndSend(LivroServiceApplication.DIRECT_EXCHANGE_NAME, LivroServiceApplication.ROUTING_KEY, livro.toString());
+		rabbitTemplate.convertAndSend(LivroServiceApplication.CADASTRAR_LIVRO_QUEUE_NAME, LivroServiceApplication.CADASTRAR_LIVRO_ROUTING_KEY, livro);
         logger.info("adicionarLivroAssincrono terminou");
 	}
+
+	@PutMapping("/{id}")
+	public Livro atualizarLivro(@RequestBody Livro livro, @PathVariable Long id) {
+		logger.info("atualizarLivro: " + livro + " id: " + id);
+		return repository.findById(id).map(livroSalvo -> {
+			livroSalvo.setAutor(livro.getAutor());
+			livroSalvo.setTitulo(livro.getTitulo());
+			livroSalvo.setPreco(livro.getPreco());
+			return repository.save(livroSalvo);
+		}).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Livro não encontrado: " + id));
+	}
+
+	@DeleteMapping("/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void excluirLivro(@PathVariable Long id) {
+		logger.info("excluirLivro: " + id);
+		repository.deleteById(id);
+	}
 	
-}
-```
-
-## Configurando o endereço do broker
-
-A configuração do endereço do broker é feita no arquivo ```application.properties```, deixaremos o log com nível ```DEBUG``` para que possamos ver as mensagens que estão sendo enviadas.
-
-- ```/src/main/resources/application.properties```
-
-```
-logging.level.org.springframework.amqp=DEBUG
-spring.rabbitmq.host=[IP-DO-HOST]
-```
-
-## Testando o envio de mensagens
-
-Ótimo, agora já é possível ver as mensagens sendo enviadas e processadas por nossa aplicação.
-
-```
-2019-01-26 15:41:12.746 DEBUG 22796 --- [nio-8080-exec-1] o.s.amqp.rabbit.core.RabbitTemplate      : Publishing message (Body:'Livro [id=null, autor=Miguel de Cervantes, titulo=Don Quixote, preco=144.0]' MessageProperties [headers={}, contentType=text/plain, contentEncoding=UTF-8, contentLength=75, deliveryMode=PERSISTENT, priority=0, deliveryTag=0])on exchange [livro-service-exchange], routingKey = [livro-service.cadastrar.NNNNNNNN]
-```
-
-## Envio de objetos na mensagem
-
-Um payload de uma mensagem é um array de bytes, deste modo, podemos enviar representações serializadas do objeto e recebê-las para facilitar o processamento, vamos fazer uma alteração e permitir que o objeto "Livro" seja enviado serializado na mensagem.
-
-O primeiro passo é tornar o Livro um objeto serializável:
-
-- ```/src/main/java/com/acme/livroservice/Livro.java```
-
-```java
-package com.acme.livroservice;
-
-import java.io.Serializable;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-
-@Entity
-// Novidade aqui
-public class Livro implements Serializable {
-	private static final long serialVersionUID = 1L;
-
-    // Código atual omitido
-}
-```
-
-Vamos ajustar em seguida a classe ```LivrosController``` para que faça o envio de uma instância do próprio Livro e não sua representação textual:
-
-- ```src/main/java/com/acme/livroservice/LivrosController.java```
-
-```java
-// Código atual omitido
-public class LivrosController {
-
-    // Código atual omitido
-    @PostMapping("/assincrono")
-	@ResponseStatus(HttpStatus.CREATED)
-	public void adicionarLivroAssincrono(@RequestBody Livro livro) throws InterruptedException {
-		logger.info("adicionarLivroAssincrono iniciou: " + livro);
-		rabbitTemplate.convertAndSend(LivroServiceApplication.DIRECT_EXCHANGE_NAME, LivroServiceApplication.ROUTING_KEY, livro);
+	@DeleteMapping("/assincrono/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void excluirLivroAssincrono(@PathVariable Long id) {
+		logger.info("excluirLivroAssincrono iniciou: " + id);
+		rabbitTemplate.convertAndSend(LivroServiceApplication.EXCLUIR_LIVRO_QUEUE_NAME, LivroServiceApplication.EXCLUIR_LIVRO_ROUTING_KEY, id);
+        logger.info("excluirLivroAssincrono terminou");
 	}
 }
-```
 
-O ```Receiver``` também deve ser ajustado, e agora, já poderá fazer a persistência do objeto recebido:
 
-- ```src/main/java/com/acme/livroservice/Receiver.java```
+LivroServiceApplication
 
-```java
+package com.acme.livroservice;
+
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+@SpringBootApplication
+public class LivroServiceApplication {
+
+	static final String MATRICULA = "NNNNNNNN";
+	static final String LIVRO_DIRECT_EXCHANGE_NAME = "livro-direct-exchange-" + MATRICULA;
+	static final String CADASTRAR_LIVRO_QUEUE_NAME = "cadastrar_livro_queue_" + MATRICULA;
+	static final String CADASTRAR_LIVRO_ROUTING_KEY = "livro.cadastrar." + MATRICULA;
+	
+	static final String EXCLUIR_LIVRO_QUEUE_NAME = "excluir_livro_queue_" + MATRICULA;
+	static final String EXCLUIR_LIVRO_ROUTING_KEY = "livro.excluir." + MATRICULA;
+
+	@Bean
+	public RabbitTemplate rabbitTemplate(final ConnectionFactory connectionFactory,
+			MessageConverter producerJackson2MessageConverter) {
+		final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+		rabbitTemplate.setMessageConverter(producerJackson2MessageConverter);
+		return rabbitTemplate;
+	}
+
+	@Bean
+	public Jackson2JsonMessageConverter producerJackson2MessageConverter() {
+		return new Jackson2JsonMessageConverter();
+	}
+
+	public static void main(String[] args) {
+		SpringApplication.run(LivroServiceApplication.class, args);
+	}
+}
+
+Receiver
+
 package com.acme.livroservice;
 
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 @Component
 public class Receiver {
-
 	Logger logger = LoggerFactory.getLogger(LivrosController.class);
 
 	private final LivroRepository repository;
@@ -322,83 +534,26 @@ public class Receiver {
 		this.repository = repository;
 	}
 
-	public void receiveMessage(Livro livro) throws InterruptedException {
+	@RabbitListener(queues = LivroServiceApplication.CADASTRAR_LIVRO_QUEUE_NAME)
+	public void receiveMessageCadastrarLivro(Livro livro) throws InterruptedException {
 		logger.info("Recebeu <" + livro.toString() + ">");
 		TimeUnit.SECONDS.sleep(3);
 		repository.save(livro);
 		logger.info("Processou <" + livro.toString() + ">");
 	}
-}
-```
-
-Se consultar o log, verá que agora o conteúdo enviado é bem diferente, em especial o ```contentType```:
-
-```
-Received message: (Body:'[B@57e45b61(byte[261])' MessageProperties [headers={}, contentType=application/x-java-serialized-object, contentLength=0, receivedDeliveryMode=PERSISTENT, priority=0, redelivered=true, receivedExchange=livro-service-exchange, receivedRoutingKey=livro-service.cadastrar.NNNNNNNN, deliveryTag=2, consumerTag=amq.ctag-zAyzUsjDXcANxFYigaP4dA, consumerQueue=livro-service-queue])
-```
-
-Conseguimos enviar o objeto ao *broker*, recebê-lo em seguida e fazer sua persistência no banco. Porém estamos trafegando dados binários, o que dificulta a integração de nossa aplicação com outras tecnologias (talvez um serviço Node poderia enviar o livro para persistência).
-
-Para evitar este problema, iremos alterar novamente o projeto para que o Livro seja enviado no formato JSON.
-
-Algumas alterações são necessárias, primeiro no ```Receiver```:
-
-- ```src/main/java/com/acme/livroservice/Receiver.java```
-
-```java
-// Código atual omitido
-
-@Component
-public class Receiver {
-
-	// Código atual omitido
-
-	@RabbitListener(queues = LivroServiceApplication.QUEUE_NAME)
-    public void receiveMessage(final Livro livro) throws InterruptedException {
-		logger.info("Recebeu <" + livro.toString() + ">");
+	
+	@RabbitListener(queues = LivroServiceApplication.EXCLUIR_LIVRO_QUEUE_NAME)
+	public void receiveMessageExcluirLivro(Long id) throws InterruptedException {
+		logger.info("Recebeu para exclusão id: <" + id + ">");
 		TimeUnit.SECONDS.sleep(3);
-		repository.save(livro);
-		logger.info("Processou <" + livro.toString() + ">");
-    }
+		repository.deleteById(id);
+		logger.info("Processou exclusão do id: <" + id + ">");
+	}
 }
-```
+-->
 
-Em ```LivroServiceApplication``` devemos excluir (ou comentar) os métodos ```container``` e ```listenerAdapter``` e incluir os métodos abaixo:
 
-- ```src/main/java/com/acme/livroservice/LivroServiceApplication.java```
-
-```java
-
-// Código atual omitido
-
-@SpringBootApplication
-public class LivroServiceApplication {
-
-    // Código atual omitido
-
-    @Bean
-    public RabbitTemplate rabbitTemplate(final ConnectionFactory connectionFactory, MessageConverter producerJackson2MessageConverter) {
-        final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-        rabbitTemplate.setMessageConverter(producerJackson2MessageConverter);
-        return rabbitTemplate;
-    }
-    
-    @Bean
-    public Jackson2JsonMessageConverter producerJackson2MessageConverter() {
-        return new Jackson2JsonMessageConverter();
-    }
-}
-```
-
-Tudo deve continuar funcionando como antes, porém, ao incluirmos um livro, a saída do log deve conter algo como:
-
-```
-2019-01-26 17:02:42.892 DEBUG 18736 --- [cTaskExecutor-1] o.s.a.r.listener.BlockingQueueConsumer   : Received message: (Body:'{"id":null,"autor":"Miguel de Cervantes","titulo":"Don Quixote","preco":144.0}' MessageProperties [headers={__TypeId__=com.acme.livroservice.Livro}, contentType=application/json, contentEncoding=UTF-8, contentLength=0, receivedDeliveryMode=PERSISTENT, priority=0, redelivered=false, receivedExchange=livro-service-exchange, receivedRoutingKey=livro-service.cadastrar.NNNNNNNN, deliveryTag=1, consumerTag=amq.ctag-AvOxDohdkBt6IgVdpToobQ, consumerQueue=livro-service-queue])
-```
-
-Perceba que o conteúdo do ```Body``` é um JSON e ```contentType``` agora é ```application/json```.
-
-> Para desabilitar temporariamente o RabbitMQ e evitar erros de conexão durante o restante do treinamento, anote a classe Receiver com ```@Profile("disabled")```
+> Para desabilitar temporariamente o RabbitMQ e evitar erros de conexão durante o restante do treinamento, anote a classe Receiver com `@Profile("disabled")`
 
 ## Fontes
 
