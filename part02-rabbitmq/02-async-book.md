@@ -354,6 +354,74 @@ Faça o mesmo agora para a funcionalidade de exclusão de livros, para isso, cri
 
 Já que estamos excluindo os livros de forma assíncrona, seria interessante também realizar a exclusão das avaliações relacionadas a este livro de forma assíncrona.
 
+## Multicast de Mensagens
+
+Para exercitarmos o envio de mensagens em "multicast", podemos utilizar o padrão fanout de exchange, para isso, podemos utilizar o recurso de criação programática de Exchanges/Queues/Bindings do RabbitMQ.
+
+Primeiro, vamos ajustar **LivroServiceApplication**:
+
+```java
+package com.acme.livroservice;
+
+// Código atual omitido
+
+@SpringBootApplication
+public class LivroServiceApplication {
+
+	static final String MATRICULA = "NNNNNNNN";
+	static final String LIVRO_DIRECT_EXCHANGE_NAME = "livro-direct-exchange-" + MATRICULA;
+	static final String LIVRO_FANOUT_EXCHANGE_NAME = "livro-fanout-exchange";
+	static final String CADASTRAR_LIVRO_QUEUE_NAME = "cadastrar_livro_queue_" + MATRICULA;
+	static final String CADASTRAR_LIVRO_ROUTING_KEY = "livro.cadastrar." + MATRICULA;
+
+    // Novidades aqui
+	static final String EXCLUIR_LIVRO_QUEUE_NAME = "excluir_livro_queue_" + MATRICULA;
+	static final String EXCLUIR_LIVRO_ROUTING_KEY = "livro.excluir." + MATRICULA;
+
+	@Bean
+	public Queue queue() {
+		return new Queue(CADASTRAR_LIVRO_QUEUE_NAME);
+	}
+
+	@Bean
+	public FanoutExchange exchange() {
+		return new FanoutExchange(LIVRO_FANOUT_EXCHANGE_NAME);
+	}
+
+	@Bean
+	public Binding binding(Queue queue, FanoutExchange exchange) {
+		return BindingBuilder.bind(queue).to(exchange);
+	}
+
+    // Código atual omitido
+}
+```
+
+Agora vamos ajustar o controller para que tenha um método de publicação de mensagens multicast:
+
+- `src/main/java/com/acme/livroservice/LivrosController.java`
+
+```java
+// Código atual omitido
+import java.util.concurrent.TimeUnit;
+
+@RestController
+@RequestMapping("/livros")
+public class LivrosController {
+
+    // Código atual omitido
+
+    // Novidade aqui
+	@PostMapping("/multicast")
+	@ResponseStatus(HttpStatus.CREATED)
+	public void adicionarLivroMulticast(@RequestBody Livro livro) throws InterruptedException {
+		logger.info("adicionarLivroMulticast iniciou: " + livro);
+		rabbitTemplate.convertAndSend(LivroServiceApplication.LIVRO_FANOUT_EXCHANGE_NAME, livro);
+		logger.info("adicionarLivroMulticast terminou");
+	}
+}
+```
+
 <!--
 LivrosController
 
