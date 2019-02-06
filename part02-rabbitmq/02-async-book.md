@@ -81,7 +81,7 @@ public class LivroServiceApplication {
     // Novidades aqui
 	static final String MATRICULA = "NNNNNNNN";
 	static final String LIVRO_DIRECT_EXCHANGE_NAME = "livro-direct-exchange-" + MATRICULA;
-	static final String CADASTRAR_LIVRO_QUEUE_NAME = "cadastrar_livro_queue_" + MATRICULA;	
+	static final String CADASTRAR_LIVRO_QUEUE_NAME = "cadastrar_livro_queue_" + MATRICULA;
 	static final String CADASTRAR_LIVRO_ROUTING_KEY = "livro.cadastrar." + MATRICULA;
 	
 	public static void main(String[] args) {
@@ -153,12 +153,12 @@ public class LivrosController {
     // Código atual omitido
 	
     // Novidade aqui
-	@PostMapping("/assincrono")
+	@PostMapping("/async/direct")
 	@ResponseStatus(HttpStatus.CREATED)
-	public void adicionarLivroAssincrono(@RequestBody Livro livro) throws InterruptedException {
-		logger.info("adicionarLivroAssincrono iniciou: " + livro);
+	public void adicionarLivroAsyncDirect(@RequestBody Livro livro) throws InterruptedException {
+		logger.info("adicionarLivroAsyncDirect iniciou: " + livro);
 		rabbitTemplate.convertAndSend(LivroServiceApplication.LIVRO_DIRECT_EXCHANGE_NAME, LivroServiceApplication.CADASTRAR_LIVRO_ROUTING_KEY, livro.toString());
-        logger.info("adicionarLivroAssincrono terminou");
+        logger.info("adicionarLivroAsyncDirect terminou");
 	}
 }
 ```
@@ -235,10 +235,10 @@ Vamos ajustar em seguida a classe `LivrosController` para que faça o envio de u
 public class LivrosController {
 
     // Código atual omitido
-    @PostMapping("/assincrono")
+    @PostMapping("/async/direct")
 	@ResponseStatus(HttpStatus.CREATED)
-	public void adicionarLivroAssincrono(@RequestBody Livro livro) throws InterruptedException {
-		logger.info("adicionarLivroAssincrono iniciou: " + livro);
+	public void adicionarLivroAsyncDirect(@RequestBody Livro livro) throws InterruptedException {
+		logger.info("adicionarLivroAsyncDirect iniciou: " + livro);
 		rabbitTemplate.convertAndSend(LivroServiceApplication.LIVRO_DIRECT_EXCHANGE_NAME, LivroServiceApplication.CADASTRAR_LIVRO_ROUTING_KEY, livro);
 	}
 }
@@ -268,6 +268,7 @@ public class Receiver {
 		this.repository = repository;
 	}
 
+	@RabbitListener(queues = LivroServiceApplication.CADASTRAR_LIVRO_QUEUE_NAME)
 	public void receiveMessage(Livro livro) throws InterruptedException {
 		logger.info("Recebeu <" + livro.toString() + ">");
 		TimeUnit.SECONDS.sleep(3);
@@ -379,18 +380,18 @@ public class LivroServiceApplication {
 	static final String EXCLUIR_LIVRO_ROUTING_KEY = "livro.excluir." + MATRICULA;
 
 	@Bean
-	public Queue queue() {
+	public Queue cadastrarLivroQueue() {
 		return new Queue(CADASTRAR_LIVRO_QUEUE_NAME);
 	}
 
 	@Bean
-	public FanoutExchange exchange() {
+	public FanoutExchange fanoutExchange() {
 		return new FanoutExchange(LIVRO_FANOUT_EXCHANGE_NAME);
 	}
 
 	@Bean
-	public Binding binding(Queue queue, FanoutExchange exchange) {
-		return BindingBuilder.bind(queue).to(exchange);
+	public Binding binding(Queue cadastrarLivroQueue, FanoutExchange fanoutExchange) {
+		return BindingBuilder.bind(cadastrarLivroQueue).to(fanoutExchange);
 	}
 
     // Código atual omitido
@@ -412,15 +413,20 @@ public class LivrosController {
     // Código atual omitido
 
     // Novidade aqui
-	@PostMapping("/multicast")
+	@PostMapping("/async/fanout")
 	@ResponseStatus(HttpStatus.CREATED)
-	public void adicionarLivroMulticast(@RequestBody Livro livro) throws InterruptedException {
-		logger.info("adicionarLivroMulticast iniciou: " + livro);
-		rabbitTemplate.convertAndSend(LivroServiceApplication.LIVRO_FANOUT_EXCHANGE_NAME, livro);
-		logger.info("adicionarLivroMulticast terminou");
+	public void adicionarLivroAsyncFanout(@RequestBody Livro livro) throws InterruptedException {
+		logger.info("adicionarLivroAsyncFanout iniciou: " + livro);
+		rabbitTemplate.convertAndSend(LivroServiceApplication.LIVRO_FANOUT_EXCHANGE_NAME, "*", livro);
+		logger.info("adicionarLivroAsyncFanout terminou");
 	}
 }
 ```
+
+## Mensagens por tópico
+
+Já implementamos um cadastro de livros via *direct exchanges*, *fanout exchanges* e agora, iremos fazer o mesmo utilizando uma *topic exchange*.
+
 
 <!--
 LivrosController
