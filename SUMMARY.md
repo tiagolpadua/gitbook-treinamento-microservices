@@ -20,6 +20,7 @@
     * [Service Boot Actuator](part03-caracteristicas/03-actuator.md)
     * [Cache com Redis](part03-caracteristicas/04-redis.md)
     * [Gateway](part03-caracteristicas/05-gateway.md)
+    * [Gateway](part03-caracteristicas/06-admin.md)
 * [Design Arquitetural de Microsserviços](part04-design/README.md)
     * [Análise de domínio](part04-design/01-dominio.md)
     * [Identificando limites de microsserviço](part04-design/02-limites.md)
