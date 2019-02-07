@@ -1,6 +1,6 @@
 # Service Discovery com Consul
 
-A descoberta de serviço é um dos princípios fundamentais de uma arquitetura baseada em microsserviço. Tentar configurar manualmente cada cliente ou alguma forma de convenção pode ser muito difícil de fazer e pode ser muito frágil. A Consul fornece serviços de descoberta de serviços por meio de uma API HTTP e DNS. O Spring Cloud Consul aproveita a API HTTP para registro e descoberta de serviços. Isso não impede que aplicativos que não sejam da Spring Cloud aproveitem a interface do DNS. Os servidores da Consul Agents são executados em um cluster que se comunica por meio de um protocolo gossip (peer-to-peer communication) e usa o protocolo de consenso do Raft.
+A descoberta de serviço é um dos princípios fundamentais de uma arquitetura baseada em microsserviço. Tentar configurar manualmente cada cliente ou alguma forma de convenção pode ser muito difícil de fazer e pode ser muito frágil. O Consul fornece serviços de descoberta de serviços por meio de uma API HTTP e DNS. O Spring Cloud Consul aproveita a API HTTP para registro e descoberta de serviços. Isso não impede que aplicativos que não sejam da Spring Cloud aproveitem a interface do DNS. Os servidores da Consul Agents são executados em um cluster que se comunica por meio de um protocolo gossip (peer-to-peer communication) e usa o protocolo de consenso do Raft.
 
 ## Como ativar
 
