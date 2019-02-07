@@ -150,33 +150,12 @@ Por fim, o arquivo **admin.properties** no **config-repo** deve ter as seguintes
 ```
 server.port=9091
 spring.boot.admin.discovery.ignored-services=consul
-spring.boot.admin.context-path=admin
 ```
 
 O Consul deve ser ignorado da monitoração uma vez que não conta com os **end-points** do Spring Actuator que são necessários pelo Admin.
 
-Acessando o endereço http://localhost:9091/admin teremos acesso à administração das instâncias de serviços do Spring Boot em execução.
+Acessando o endereço http://localhost:9091 teremos acesso à administração das instâncias de serviços do Spring Boot em execução.
 
-Um último passo que pode ser interessante é adicionar o serviço de Admin ao nosso gateway, para isso, devemos alterar o arquivo **gateway.yml** no config-repo:
+## Um toque especial em nossas aplicações
 
-```
-server:
-  port: 9090
-  
-spring:
-  cloud:
-    gateway:
-      routes:
-      - id: livro_service_route
-        uri: lb://livro-service
-        predicates:
-        - Path=/livros
-      - id: avalicacao_service_route
-        uri: lb://avaliacao-service
-        predicates:
-        - Path=/avaliacoes
-      - id: admin_route
-        uri: lb://admin
-        predicates:
-        - Path=/admin
-```
+Podemos customizar o visual da inicialização de nossa aplicação utilizando um banner customizado, para isso, baixe o arquivo a seguir e coloque-o na pasta `src/main/resources` de suas aplicações https://raw.githubusercontent.com/tiagolpadua/msc-files/master/banner.txt
