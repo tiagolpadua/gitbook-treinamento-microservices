@@ -8,7 +8,7 @@ Podemos utilizar o site do Spring Initializr para realizar a criação de um pro
 
 - Group: com.acme
 - Artifact: admin
-- Dependencies: Spring Boot Admin (Server), Consul Discovery, Actuator
+- Dependencies: Spring Boot Admin (Server), Consul Discovery, Actuator e Config Client
 
 Realizar o download, descopactar o projeto e importá-lo no STS.
 
