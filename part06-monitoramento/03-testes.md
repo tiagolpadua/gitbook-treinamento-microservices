@@ -239,7 +239,7 @@ public class LivrosController {
 	}
 
 	@PutMapping("/{id}")
-	@CachePut(value = "livros", key = "#livro.id")
+	@CachePut(value = "livros", key = "#id")
 	public Livro atualizarLivro(@RequestBody Livro livro, @PathVariable Long id) {
 		logger.info("atualizarLivro: " + livro + " id: " + id);
 		return livroService.atualizarLivro(livro, id);
