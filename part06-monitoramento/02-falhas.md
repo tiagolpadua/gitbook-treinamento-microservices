@@ -67,7 +67,7 @@ Inicialmente, iremos incluir a dependência do Hystrix no projeto avaliacao-serv
 
 A anotação ```@EnableCircuitBreaker``` examinará o caminho de classe para qualquer implementação de circuit-breaker compatível.
 
-Para usar o Hystrix explicitamente, você deve anotar ```AvaliacaoServiceApplication``` com ```@EnableHystrix```:
+Para usar o Hystrix explicitamente, você deve anotar ```AvaliacaoServiceApplication``` com ```@EnableCircuitBreaker```:
 
 **AvaliacaoServiceApplication**
 
